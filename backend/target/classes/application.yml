@@ -25,6 +25,10 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
   
+  sql:
+    init:
+      mode: never # Disable data.sql for now
+  
   # Mail Configuration
   mail:
     host: smtp.gmail.com

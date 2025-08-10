@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +22,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
     private final FirebaseAuth firebaseAuth;
 
-    public FirebaseAuthenticationFilter(FirebaseAuth firebaseAuth) {
+    public FirebaseAuthenticationFilter(@Autowired(required = false) FirebaseAuth firebaseAuth) {
         this.firebaseAuth = firebaseAuth;
     }
 
@@ -31,7 +32,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
         
         String authorizationHeader = request.getHeader("Authorization");
         
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        if (firebaseAuth != null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
             
             try {
@@ -66,6 +67,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return path.startsWith("/api/auth/") || 
                path.startsWith("/h2-console") || 
-               path.startsWith("/api/health");
+               path.equals("/api/auth/health") ||
+               path.equals("/api/health");
     }
 }

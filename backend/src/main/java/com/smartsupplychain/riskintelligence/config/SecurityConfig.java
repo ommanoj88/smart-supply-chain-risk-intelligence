@@ -2,6 +2,7 @@ package com.smartsupplychain.riskintelligence.config;
 
 import com.smartsupplychain.riskintelligence.security.CustomAuthenticationEntryPoint;
 import com.smartsupplychain.riskintelligence.security.FirebaseAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -26,7 +27,7 @@ public class SecurityConfig {
     private final FirebaseAuthenticationFilter firebaseAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(FirebaseAuthenticationFilter firebaseAuthenticationFilter,
+    public SecurityConfig(@Autowired(required = false) FirebaseAuthenticationFilter firebaseAuthenticationFilter,
                          CustomAuthenticationEntryPoint authenticationEntryPoint) {
         this.firebaseAuthenticationFilter = firebaseAuthenticationFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -39,12 +40,16 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/health", "/h2-console/**").permitAll()
+                .requestMatchers("/api/auth/**", "/api/health", "/h2-console/**", "/health").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
-            .addFilterBefore(firebaseAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers.frameOptions().sameOrigin()); // For H2 console
+
+        // Only add Firebase filter if it's available
+        if (firebaseAuthenticationFilter != null) {
+            http.addFilterBefore(firebaseAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        }
 
         return http.build();
     }
