@@ -1,5 +1,7 @@
 spring:
-  profiles: dev
+  config:
+    activate:
+      on-profile: dev
   
   # H2 Database for Development
   datasource:
@@ -12,6 +14,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    defer-datasource-initialization: true
+    
+  # SQL Initialization
+  sql:
+    init:
+      mode: never
     
   h2:
     console:
