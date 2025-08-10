@@ -48,8 +48,9 @@ public class FirebaseConfig {
      * 
      * This method is called after dependency injection is complete.
      * It attempts to initialize Firebase using either:
-     * 1. Service account key file (if available)
+     * 1. Service account key file (if available and valid)
      * 2. Default credentials (for production environments)
+     * 3. Skips initialization for development with placeholder credentials
      * 
      * @throws IllegalStateException if Firebase initialization fails
      */
@@ -64,15 +65,32 @@ public class FirebaseConfig {
                 // Try to load service account key file
                 if (serviceAccountKeyPath.exists()) {
                     try (InputStream serviceAccount = serviceAccountKeyPath.getInputStream()) {
-                        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
-                        optionsBuilder.setCredentials(credentials);
-                        logger.info("Firebase initialized with service account key file");
+                        // Check if this is a placeholder/development key
+                        String content = new String(serviceAccount.readAllBytes());
+                        if (content.contains("placeholder") || content.contains("abc123")) {
+                            logger.warn("Placeholder Firebase service account detected. Firebase initialization skipped for development.");
+                            logger.warn("To enable Firebase, provide a valid service-account-key.json file.");
+                            return;
+                        }
+                        
+                        // Reset stream for actual credential loading
+                        try (InputStream resetStream = serviceAccountKeyPath.getInputStream()) {
+                            GoogleCredentials credentials = GoogleCredentials.fromStream(resetStream);
+                            optionsBuilder.setCredentials(credentials);
+                            logger.info("Firebase initialized with service account key file");
+                        }
                     }
                 } else {
-                    // Use default credentials (for production environments)
-                    GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-                    optionsBuilder.setCredentials(credentials);
-                    logger.info("Firebase initialized with application default credentials");
+                    // Try to use default credentials (for production environments)
+                    try {
+                        GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
+                        optionsBuilder.setCredentials(credentials);
+                        logger.info("Firebase initialized with application default credentials");
+                    } catch (IOException e) {
+                        logger.warn("No Firebase credentials found. Firebase initialization skipped.");
+                        logger.warn("For production use, set up proper Firebase credentials.");
+                        return;
+                    }
                 }
                 
                 FirebaseOptions options = optionsBuilder.build();
@@ -84,7 +102,10 @@ public class FirebaseConfig {
             }
             
         } catch (IOException e) {
-            logger.error("Failed to initialize Firebase Admin SDK", e);
+            logger.warn("Failed to initialize Firebase Admin SDK: {}. Application will continue without Firebase.", e.getMessage());
+            // Don't throw exception - allow application to start without Firebase for development
+        } catch (Exception e) {
+            logger.error("Unexpected error during Firebase initialization", e);
             throw new IllegalStateException("Firebase initialization failed", e);
         }
     }
@@ -93,20 +114,27 @@ public class FirebaseConfig {
      * Creates a FirebaseAuth bean for dependency injection.
      * 
      * This bean provides access to Firebase Authentication services
-     * for token verification and user management.
+     * for token verification and user management. Returns null if
+     * Firebase is not properly initialized (development mode).
      * 
-     * @return FirebaseAuth instance
-     * @throws IllegalStateException if Firebase is not initialized
+     * @return FirebaseAuth instance or null if Firebase not initialized
      */
     @Bean
     public FirebaseAuth firebaseAuth() {
         try {
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            logger.debug("FirebaseAuth bean created successfully");
-            return auth;
+            if (isFirebaseInitialized()) {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                logger.debug("FirebaseAuth bean created successfully");
+                return auth;
+            } else {
+                logger.warn("Firebase not initialized. FirebaseAuth bean will be null.");
+                logger.warn("Authentication endpoints will not work without proper Firebase configuration.");
+                return null;
+            }
         } catch (Exception e) {
-            logger.error("Failed to create FirebaseAuth bean", e);
-            throw new IllegalStateException("FirebaseAuth initialization failed", e);
+            logger.error("Failed to create FirebaseAuth bean: {}", e.getMessage());
+            logger.warn("FirebaseAuth bean will be null. Authentication may not work properly.");
+            return null;
         }
     }
     
