@@ -1,0 +1,15 @@
+com/smartsupplychain/riskintelligence/config/SecurityConfig.class
+com/smartsupplychain/riskintelligence/model/Alert.class
+com/smartsupplychain/riskintelligence/enums/ShipmentStatus.class
+com/smartsupplychain/riskintelligence/enums/UserRole.class
+com/smartsupplychain/riskintelligence/model/User.class
+com/smartsupplychain/riskintelligence/config/FirebaseConfig.class
+com/smartsupplychain/riskintelligence/enums/AlertSeverity.class
+com/smartsupplychain/riskintelligence/security/FirebaseAuthenticationFilter.class
+com/smartsupplychain/riskintelligence/security/FirebaseUserPrincipal.class
+com/smartsupplychain/riskintelligence/model/RiskPrediction.class
+com/smartsupplychain/riskintelligence/security/CustomAuthenticationEntryPoint.class
+com/smartsupplychain/riskintelligence/RiskIntelligenceApplication.class
+com/smartsupplychain/riskintelligence/model/Supplier.class
+com/smartsupplychain/riskintelligence/model/Shipment.class
+com/smartsupplychain/riskintelligence/enums/RiskLevel.class
