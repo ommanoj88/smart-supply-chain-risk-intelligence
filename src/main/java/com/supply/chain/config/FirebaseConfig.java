@@ -40,10 +40,18 @@ public class FirebaseConfig {
             } catch (Exception e) {
                 logger.error("Failed to initialize Firebase. Make sure service-account-key.json exists at: {}", credentialsPath);
                 logger.error("Error: {}", e.getMessage());
+                logger.warn("Creating mock FirebaseApp for development - authentication will not work");
                 
-                // For development, we'll create a mock FirebaseApp to prevent startup failure
-                logger.warn("Running without Firebase authentication - service account key not found");
-                throw new RuntimeException("Firebase initialization failed: " + e.getMessage());
+                // Create a mock FirebaseApp for development
+                FirebaseOptions mockOptions = FirebaseOptions.builder()
+                        .setProjectId(projectId)
+                        .build();
+                
+                try {
+                    return FirebaseApp.initializeApp(mockOptions, "mock-app");
+                } catch (Exception mockError) {
+                    throw new RuntimeException("Firebase initialization failed: " + e.getMessage());
+                }
             }
         }
         return FirebaseApp.getInstance();
