@@ -69,6 +69,49 @@ const Header = () => {
 
         {isAuthenticated ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Navigation Links */}
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+              <Button 
+                color="inherit" 
+                onClick={() => navigate('/')}
+                sx={{ textTransform: 'none' }}
+              >
+                Dashboard
+              </Button>
+              <Button 
+                color="inherit" 
+                onClick={() => navigate('/suppliers')}
+                sx={{ textTransform: 'none' }}
+              >
+                Suppliers
+              </Button>
+              <Button 
+                color="inherit" 
+                onClick={() => navigate('/shipments')}
+                sx={{ textTransform: 'none' }}
+              >
+                Shipments
+              </Button>
+              {(user?.role === 'ADMIN' || user?.role === 'SUPPLY_MANAGER') && (
+                <Button 
+                  color="inherit" 
+                  onClick={() => navigate('/supply-manager')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Operations
+                </Button>
+              )}
+              {user?.role === 'ADMIN' && (
+                <Button 
+                  color="inherit" 
+                  onClick={() => navigate('/admin')}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Admin
+                </Button>
+              )}
+            </Box>
+
             <Chip
               label={user?.role || 'VIEWER'}
               color={getRoleColor(user?.role)}
