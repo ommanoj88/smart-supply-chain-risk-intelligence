@@ -2,13 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Users, 
-  TrendingUp, 
   AlertTriangle, 
   CheckCircle,
-  Building2,
-  Shield,
-  Star,
-  Clock
+  Shield
 } from 'lucide-react';
 
 const SupplierStats = ({ stats, auditRequired, isLoading }) => {
@@ -27,7 +23,6 @@ const SupplierStats = ({ stats, auditRequired, isLoading }) => {
   }
 
   const statusStats = stats.countByStatus || {};
-  const tierStats = stats.countByTier || {};
   const riskStats = stats.averageRiskScores || {};
 
   const statCards = [

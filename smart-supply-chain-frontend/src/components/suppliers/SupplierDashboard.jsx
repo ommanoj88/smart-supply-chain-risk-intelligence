@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { 
-  Users, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle,
-  Building2,
-  MapPin,
   Search,
   Filter,
-  Plus,
-  MoreVertical
+  Plus
 } from 'lucide-react';
-import { supplierApi, supplierUtils, handleApiError } from '../../services/supplierApi';
+import { supplierApi, handleApiError } from '../../services/supplierApi';
 import SupplierTable from './SupplierTable';
 import SupplierStats from './SupplierStats';
 import SupplierFilters from './SupplierFilters';
