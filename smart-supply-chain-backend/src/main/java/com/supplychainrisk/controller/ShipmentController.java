@@ -4,6 +4,7 @@ import com.supplychainrisk.dto.ShipmentDTO;
 import com.supplychainrisk.dto.ShipmentTrackingEventDTO;
 import com.supplychainrisk.entity.Shipment.ShipmentStatus;
 import com.supplychainrisk.service.ShipmentService;
+import com.supplychainrisk.service.RealTimeUpdateService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,10 +25,12 @@ import java.util.Optional;
 public class ShipmentController {
 
     private final ShipmentService shipmentService;
+    private final RealTimeUpdateService realTimeUpdateService;
 
     @Autowired
-    public ShipmentController(ShipmentService shipmentService) {
+    public ShipmentController(ShipmentService shipmentService, RealTimeUpdateService realTimeUpdateService) {
         this.shipmentService = shipmentService;
+        this.realTimeUpdateService = realTimeUpdateService;
     }
 
     @PostMapping
@@ -145,10 +149,16 @@ public class ShipmentController {
     public ResponseEntity<ShipmentDTO> updateShipmentStatus(
             @PathVariable Long id,
             @RequestParam ShipmentStatus status,
+            @RequestParam(required = false) String description,
             Authentication authentication) {
         try {
             String userEmail = authentication.getName();
             ShipmentDTO updatedShipment = shipmentService.updateShipmentStatus(id, status, userEmail);
+            
+            // Broadcast real-time update
+            String statusDescription = description != null ? description : "Status updated to " + status.name();
+            realTimeUpdateService.broadcastShipmentUpdate(id, status, statusDescription);
+            
             return new ResponseEntity<>(updatedShipment, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -220,6 +230,47 @@ public class ShipmentController {
             return new ResponseEntity<>(count, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping("/{id}/risk-alert")
+    public ResponseEntity<Map<String, String>> createRiskAlert(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> alertData) {
+        try {
+            String alertType = alertData.get("type");
+            String message = alertData.get("message");
+            String severity = alertData.getOrDefault("severity", "MEDIUM");
+            
+            realTimeUpdateService.broadcastRiskAlert(id, alertType, message, severity);
+            
+            return ResponseEntity.ok(Map.of("status", "Alert broadcast successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Failed to broadcast alert: " + e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/simulate-updates")
+    public ResponseEntity<Map<String, String>> simulateRealTimeUpdates() {
+        try {
+            // This endpoint simulates real-time updates for demonstration
+            // In a real system, these would come from actual carrier APIs or IoT devices
+            
+            // Simulate a few shipment updates
+            realTimeUpdateService.broadcastShipmentUpdate(1L, ShipmentStatus.OUT_FOR_DELIVERY, 
+                "Package is out for delivery");
+            realTimeUpdateService.broadcastShipmentUpdate(2L, ShipmentStatus.DELIVERED, 
+                "Package delivered successfully");
+            realTimeUpdateService.broadcastRiskAlert(3L, "WEATHER_DELAY", 
+                "Severe weather causing delays in the region", "HIGH");
+            realTimeUpdateService.broadcastDashboardUpdate("active_shipments", 1247);
+            realTimeUpdateService.broadcastDashboardUpdate("delayed_shipments", 23);
+            
+            return ResponseEntity.ok(Map.of("status", "Simulation updates sent"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", "Failed to simulate updates: " + e.getMessage()));
         }
     }
 }
