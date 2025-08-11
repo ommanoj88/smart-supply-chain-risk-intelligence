@@ -6,8 +6,10 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Layout/Header';
 import ProtectedRoute from './components/Layout/ProtectedRoute';
-import Login from './components/Auth/Login';
+import DualAuthLogin from './components/Auth/DualAuthLogin';
 import Profile from './components/Auth/Profile';
+import ResetPasswordForm from './components/Auth/ResetPasswordForm';
+import AnalyticsDashboard from './components/dashboard/AnalyticsDashboard';
 import SupplierDashboard from './components/suppliers/SupplierDashboard';
 import ShipmentDashboard from './components/shipments/ShipmentDashboard';
 import ShipmentTracking from './components/shipments/ShipmentTracking';
@@ -22,48 +24,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Dashboard component
+// Use the new AnalyticsDashboard component instead of the old Dashboard
 const Dashboard = () => {
-  return (
-    <div className="page-container">
-      <div className="content-container">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">
-            Supply Chain Risk Intelligence
-          </h1>
-          <div className="card p-8 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Welcome to the Smart Supply Chain Platform
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-              This comprehensive platform provides advanced tools for monitoring, analyzing, and managing 
-              supply chain risks across your entire supplier network. Access powerful features based on 
-              your role and permissions.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="text-center p-6 bg-primary-50 rounded-fluent-lg">
-                <div className="text-3xl font-bold text-primary-600 mb-2">10K+</div>
-                <div className="text-gray-600">Suppliers Managed</div>
-              </div>
-              <div className="text-center p-6 bg-accent-50 rounded-fluent-lg">
-                <div className="text-3xl font-bold text-accent-600 mb-2">99.9%</div>
-                <div className="text-gray-600">Platform Uptime</div>
-              </div>
-              <div className="text-center p-6 bg-gray-50 rounded-fluent-lg">
-                <div className="text-3xl font-bold text-gray-700 mb-2">Real-time</div>
-                <div className="text-gray-600">Risk Assessment</div>
-              </div>
-            </div>
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-fluent">
-              <div className="text-blue-800 text-sm font-medium">
-                ✓ Authentication system is active. Your session is secured with Firebase Authentication.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <AnalyticsDashboard />;
 };
 
 // Unauthorized component
@@ -139,7 +102,8 @@ function App() {
             <Header />
             <main>
               <Routes>
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<DualAuthLogin />} />
+                <Route path="/reset-password" element={<ResetPasswordForm />} />
                 <Route path="/unauthorized" element={<Unauthorized />} />
                 <Route
                   path="/"
