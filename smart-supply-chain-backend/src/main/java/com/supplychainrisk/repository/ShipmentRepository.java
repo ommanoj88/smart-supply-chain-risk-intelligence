@@ -44,12 +44,12 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
             @Param("toDate") LocalDateTime toDate,
             Pageable pageable);
 
-    @Query("SELECT s FROM Shipment s WHERE to_tsvector('english', " +
-           "COALESCE(s.trackingNumber, '') || ' ' || " +
-           "COALESCE(s.referenceNumber, '') || ' ' || " +
-           "COALESCE(s.carrierName, '') || ' ' || " +
-           "COALESCE(s.originCity, '') || ' ' || " +
-           "COALESCE(s.destinationCity, '')) @@ plainto_tsquery('english', :searchTerm)")
+    @Query("SELECT s FROM Shipment s WHERE " +
+           "LOWER(COALESCE(s.trackingNumber, '')) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(COALESCE(s.referenceNumber, '')) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(COALESCE(s.carrierName, '')) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(COALESCE(s.originCity, '')) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(COALESCE(s.destinationCity, '')) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Shipment> searchShipments(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     @Query("SELECT COUNT(s) FROM Shipment s WHERE s.status = :status")
@@ -59,5 +59,11 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     List<Object[]> getShipmentCountByCarrier();
 
     @Query("SELECT s FROM Shipment s WHERE s.riskScore > :riskThreshold")
-    List<Shipment> findHighRiskShipments(@Param("riskThreshold") Integer riskThreshold);
+    List<Shipment> findHighRiskShipments(@Param("riskThreshold") Double riskThreshold);
+
+    @Query("SELECT s FROM Shipment s WHERE s.supplier.id = :supplierId AND s.status = :status")
+    List<Shipment> findBySupplierIdAndStatus(@Param("supplierId") Long supplierId, @Param("status") ShipmentStatus status);
+
+    @Query("SELECT s FROM Shipment s WHERE s.estimatedDeliveryDate BETWEEN :startDate AND :endDate")
+    List<Shipment> findByEstimatedDeliveryDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
