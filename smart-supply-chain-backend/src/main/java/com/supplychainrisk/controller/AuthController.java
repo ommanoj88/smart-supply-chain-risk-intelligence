@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseToken;
 import com.supplychainrisk.dto.AuthResponse;
 import com.supplychainrisk.dto.LoginRequest;
 import com.supplychainrisk.dto.RegisterRequest;
+import com.supplychainrisk.dto.ForgotPasswordRequest;
+import com.supplychainrisk.dto.ResetPasswordRequest;
 import com.supplychainrisk.entity.User;
 import com.supplychainrisk.security.JwtUtil;
 import com.supplychainrisk.service.AuthService;
@@ -299,6 +301,91 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Internal server error"));
         }
+    }
+    
+    // Password Reset Endpoints
+    
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            // Generate password reset token and send email
+            String resetToken = authService.generatePasswordResetToken(request.getEmail());
+            
+            if (resetToken != null) {
+                // In a real application, you would send an email here
+                // For now, we'll just log it (in production, remove this log)
+                logger.info("Password reset token generated for {}: {}", request.getEmail(), resetToken);
+                
+                return ResponseEntity.ok(Map.of(
+                    "message", "Password reset email sent successfully",
+                    "email", request.getEmail()
+                ));
+            } else {
+                // Don't reveal if email exists or not for security
+                return ResponseEntity.ok(Map.of(
+                    "message", "If the email exists, a password reset link will be sent",
+                    "email", request.getEmail()
+                ));
+            }
+            
+        } catch (Exception e) {
+            logger.error("Forgot password error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            boolean success = authService.resetPassword(request.getToken(), request.getNewPassword());
+            
+            if (success) {
+                return ResponseEntity.ok(Map.of(
+                    "message", "Password has been reset successfully"
+                ));
+            } else {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid or expired reset token"));
+            }
+            
+        } catch (Exception e) {
+            logger.error("Reset password error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    @PostMapping("/validate-reset-token")
+    public ResponseEntity<?> validateResetToken(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            if (token == null || token.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Token is required"));
+            }
+            
+            boolean isValid = authService.validatePasswordResetToken(token);
+            
+            return ResponseEntity.ok(Map.of(
+                "valid", isValid,
+                "message", isValid ? "Token is valid" : "Token is invalid or expired"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Validate reset token error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    // Helper method to extract token from request
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
     
     // Helper method to get client IP address

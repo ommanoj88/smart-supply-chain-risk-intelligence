@@ -27,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u WHERE u.isActive = true AND (u.username = :identifier OR u.email = :identifier)")
     Optional<User> findActiveUserByUsernameOrEmail(@Param("identifier") String identifier);
+    
+    Optional<User> findByPasswordResetToken(String passwordResetToken);
 }

@@ -132,7 +132,7 @@ public class ShipmentService {
     }
 
     public List<ShipmentDTO> getHighRiskShipments(Integer riskThreshold) {
-        List<Shipment> highRiskShipments = shipmentRepository.findHighRiskShipments(riskThreshold);
+        List<Shipment> highRiskShipments = shipmentRepository.findHighRiskShipments(riskThreshold.doubleValue());
         return highRiskShipments.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

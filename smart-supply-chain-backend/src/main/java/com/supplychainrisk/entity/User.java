@@ -55,6 +55,12 @@ public class User {
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
     
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+    
+    @Column(name = "password_reset_token_expires")
+    private LocalDateTime passwordResetTokenExpires;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -225,5 +231,21 @@ public class User {
     
     public void setLockedUntil(LocalDateTime lockedUntil) {
         this.lockedUntil = lockedUntil;
+    }
+    
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+    
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+    
+    public LocalDateTime getPasswordResetTokenExpires() {
+        return passwordResetTokenExpires;
+    }
+    
+    public void setPasswordResetTokenExpires(LocalDateTime passwordResetTokenExpires) {
+        this.passwordResetTokenExpires = passwordResetTokenExpires;
     }
 }
