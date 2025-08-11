@@ -11,7 +11,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.supplychainrisk.service.AuthService;
 import com.supplychainrisk.service.UserService;
+import com.supplychainrisk.service.UserSessionService;
 import com.supplychainrisk.security.FirebaseAuthenticationFilter;
+import com.supplychainrisk.security.JwtUtil;
+import com.supplychainrisk.security.JwtAuthenticationFilter;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,7 +34,16 @@ public class AuthControllerTest {
     private UserService userService;
     
     @MockBean
+    private UserSessionService userSessionService;
+    
+    @MockBean
     private FirebaseAuthenticationFilter firebaseAuthenticationFilter;
+    
+    @MockBean
+    private JwtUtil jwtUtil;
+    
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     @WithMockUser
