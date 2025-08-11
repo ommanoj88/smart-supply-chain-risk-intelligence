@@ -43,6 +43,27 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
 
+  # ML Prediction Service
+  ml-service:
+    build:
+      context: ./smart-supply-chain-ml-service
+      dockerfile: Dockerfile
+    container_name: supply-chain-ml-service
+    environment:
+      PORT: 5000
+      FLASK_ENV: production
+    ports:
+      - "${ML_SERVICE_PORT:-5000}:5000"
+    networks:
+      - supply-chain-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
   # Spring Boot backend
   backend:
     build:
@@ -75,6 +96,9 @@ services:
       
       # Application profile
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-production}
+      
+      # ML Service integration
+      ML_SERVICE_URL: ${ML_SERVICE_URL:-http://ml-service:5000}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     volumes:
@@ -85,6 +109,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      ml-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
