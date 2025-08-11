@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log('AuthProvider render - user:', user?.email, 'loading:', loading);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
@@ -35,14 +37,29 @@ export const AuthProvider = ({ children }) => {
           // Store token in localStorage
           localStorage.setItem('authToken', idToken);
           
-          // Verify token with backend and get/create user
-          const response = await authAPI.verifyToken(idToken);
-          
-          if (response.data.success) {
-            setUser(response.data.user);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-          } else {
-            throw new Error('Token verification failed');
+          // Try to verify token with backend, but don't fail if backend is unavailable
+          try {
+            const response = await authAPI.verifyToken(idToken);
+            
+            if (response.data.success) {
+              setUser(response.data.user);
+              localStorage.setItem('user', JSON.stringify(response.data.user));
+            } else {
+              throw new Error('Token verification failed');
+            }
+          } catch (backendError) {
+            console.warn('Backend unavailable, using Firebase user data:', backendError.message);
+            // Fallback: create a basic user object from Firebase data
+            const fallbackUser = {
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+              role: 'VIEWER', // Default role when backend is unavailable
+              provider: 'google'
+            };
+            setUser(fallbackUser);
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
           }
         } catch (error) {
           console.error('Authentication error:', error);
@@ -60,7 +77,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    // Check for stored user data on initial load
+    return () => unsubscribe();
+  }, []); // Remove user dependency to prevent infinite loop
+
+  // Check for stored user data on initial load - separate useEffect
+  useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('authToken');
     
@@ -73,9 +94,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('authToken');
       }
     }
-
-    return () => unsubscribe();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const signInWithGoogle = async () => {
     setLoading(true);
