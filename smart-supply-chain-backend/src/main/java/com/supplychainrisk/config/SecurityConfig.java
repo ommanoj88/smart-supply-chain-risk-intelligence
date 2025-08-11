@@ -1,6 +1,7 @@
 package com.supplychainrisk.config;
 
 import com.supplychainrisk.security.FirebaseAuthenticationFilter;
+import com.supplychainrisk.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,9 @@ public class SecurityConfig {
 
     @Autowired
     private FirebaseAuthenticationFilter firebaseAuthenticationFilter;
+    
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
@@ -37,13 +41,15 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/health", "/public/**").permitAll()
+                .requestMatchers("/auth/login", "/auth/register").permitAll()
                 .requestMatchers("/auth/verify").authenticated()
-                .requestMatchers("/auth/user").authenticated()
+                .requestMatchers("/auth/user", "/auth/logout").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/supply-manager/**").hasAnyRole("ADMIN", "SUPPLY_MANAGER")
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(firebaseAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(firebaseAuthenticationFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

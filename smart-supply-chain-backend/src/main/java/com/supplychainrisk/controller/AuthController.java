@@ -2,9 +2,16 @@ package com.supplychainrisk.controller;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.supplychainrisk.dto.AuthResponse;
+import com.supplychainrisk.dto.LoginRequest;
+import com.supplychainrisk.dto.RegisterRequest;
 import com.supplychainrisk.entity.User;
+import com.supplychainrisk.security.JwtUtil;
 import com.supplychainrisk.service.AuthService;
 import com.supplychainrisk.service.UserService;
+import com.supplychainrisk.service.UserSessionService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +37,144 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
+    
+    @Autowired
+    private UserSessionService userSessionService;
+
+    // JWT Authentication Endpoints
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        try {
+            String identifier = loginRequest.getIdentifier();
+            String password = loginRequest.getPassword();
+            
+            // Check if account is locked
+            if (userService.isAccountLocked(identifier)) {
+                return ResponseEntity.status(HttpStatus.LOCKED)
+                    .body(Map.of("error", "Account is temporarily locked due to multiple failed login attempts"));
+            }
+            
+            // Find user by username or email
+            Optional<User> userOptional = userService.findByUsernameOrEmail(identifier);
+            if (userOptional.isEmpty()) {
+                userService.incrementFailedLoginAttempts(identifier);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid credentials"));
+            }
+            
+            User user = userOptional.get();
+            
+            // Validate password
+            if (!userService.validatePassword(password, user.getPasswordHash())) {
+                userService.incrementFailedLoginAttempts(identifier);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid credentials"));
+            }
+            
+            // Check if user is active
+            if (!user.getIsActive()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Account is deactivated"));
+            }
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(user.getUsername() != null ? user.getUsername() : user.getEmail(), 
+                                               user.getRole().name(), user.getId());
+            
+            // Create session
+            String ipAddress = getClientIpAddress(request);
+            String userAgent = request.getHeader("User-Agent");
+            userSessionService.createSession(user, token, ipAddress, userAgent);
+            
+            // Update last login
+            userService.updateLastLogin(user.getId());
+            
+            // Return response
+            AuthResponse.UserDTO userDTO = new AuthResponse.UserDTO(user);
+            AuthResponse response = new AuthResponse(token, userDTO);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            logger.error("Login error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest request) {
+        try {
+            // Only allow self-registration as VIEWER, admins can create other roles
+            User.Role role = registerRequest.getRole();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            
+            // If not authenticated or not admin, default to VIEWER
+            if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+                role = User.Role.VIEWER;
+            } else {
+                User currentUser = (User) authentication.getPrincipal();
+                if (currentUser.getRole() != User.Role.ADMIN) {
+                    role = User.Role.VIEWER;
+                }
+            }
+            
+            // Create user
+            User user = userService.createUser(
+                registerRequest.getUsername(),
+                registerRequest.getEmail(),
+                registerRequest.getPassword(),
+                registerRequest.getFirstName(),
+                registerRequest.getLastName(),
+                role
+            );
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name(), user.getId());
+            
+            // Create session
+            String ipAddress = getClientIpAddress(request);
+            String userAgent = request.getHeader("User-Agent");
+            userSessionService.createSession(user, token, ipAddress, userAgent);
+            
+            // Return response
+            AuthResponse.UserDTO userDTO = new AuthResponse.UserDTO(user);
+            AuthResponse response = new AuthResponse(token, userDTO);
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Registration error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                userSessionService.revokeSession(token);
+            }
+            
+            return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+        } catch (Exception e) {
+            logger.error("Logout error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal server error"));
+        }
+    }
+    
+    // Firebase Authentication Endpoints (existing)
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyToken(@RequestBody Map<String, String> tokenRequest) {
@@ -153,5 +299,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Internal server error"));
         }
+    }
+    
+    // Helper method to get client IP address
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        if (xForwardedForHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xForwardedForHeader.split(",")[0];
     }
 }

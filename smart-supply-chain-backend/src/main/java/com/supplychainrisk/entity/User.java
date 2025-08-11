@@ -1,6 +1,8 @@
 package com.supplychainrisk.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,18 +13,47 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "firebase_uid", unique = true, nullable = false, length = 128)
+    @Column(name = "username", unique = true, length = 50)
+    private String username;
+    
+    @Column(name = "firebase_uid", unique = true, length = 128)
     private String firebaseUid;
     
     @Column(nullable = false)
+    @Email(message = "Invalid email format")
     private String email;
     
+    @Column(name = "password_hash")
+    private String passwordHash;
+    
     @Column(nullable = false)
+    @NotBlank(message = "Name is required")
     private String name;
+    
+    @Column(name = "first_name", length = 100)
+    private String firstName;
+    
+    @Column(name = "last_name", length = 100)
+    private String lastName;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.VIEWER;
+    
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+    
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
+    
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+    
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
+    
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -31,7 +62,7 @@ public class User {
     private LocalDateTime updatedAt;
     
     public enum Role {
-        ADMIN, SUPPLY_MANAGER, VIEWER
+        ADMIN, SUPPLY_MANAGER, VIEWER, AUDITOR
     }
     
     @PrePersist
@@ -48,11 +79,22 @@ public class User {
     // Default constructor
     public User() {}
     
-    // Constructor
+    // Constructor for Firebase authentication (existing)
     public User(String firebaseUid, String email, String name, Role role) {
         this.firebaseUid = firebaseUid;
         this.email = email;
         this.name = name;
+        this.role = role;
+    }
+    
+    // Constructor for JWT authentication (new)
+    public User(String username, String email, String passwordHash, String firstName, String lastName, Role role) {
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.name = (firstName != null && lastName != null) ? firstName + " " + lastName : email;
         this.role = role;
     }
     
@@ -111,5 +153,77 @@ public class User {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+    
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+    
+    public String getFirstName() {
+        return firstName;
+    }
+    
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    public String getLastName() {
+        return lastName;
+    }
+    
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    
+    public Boolean getIsActive() {
+        return isActive;
+    }
+    
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+    
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+    
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+    
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+    
+    public Integer getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+    
+    public void setFailedLoginAttempts(Integer failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+    
+    public LocalDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+    
+    public void setLockedUntil(LocalDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 }

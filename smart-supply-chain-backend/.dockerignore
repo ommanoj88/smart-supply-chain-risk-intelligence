@@ -1,0 +1,13 @@
+target/
+!target/smart-supply-chain-backend-*.jar
+.mvn/wrapper/maven-wrapper.jar
+.git
+.gitignore
+README.md
+.env
+.env.local
+.env.example
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
