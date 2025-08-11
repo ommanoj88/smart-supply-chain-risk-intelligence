@@ -9,6 +9,8 @@ import ProtectedRoute from './components/Layout/ProtectedRoute';
 import Login from './components/Auth/Login';
 import Profile from './components/Auth/Profile';
 import SupplierDashboard from './components/suppliers/SupplierDashboard';
+import ShipmentDashboard from './components/shipments/ShipmentDashboard';
+import ShipmentTracking from './components/shipments/ShipmentTracking';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -152,6 +154,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <SupplierDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shipments"
+                  element={
+                    <ProtectedRoute>
+                      <ShipmentDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shipments/track/:trackingNumber"
+                  element={
+                    <ProtectedRoute>
+                      <ShipmentTracking />
                     </ProtectedRoute>
                   }
                 />
