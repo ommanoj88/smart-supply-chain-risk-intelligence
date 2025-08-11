@@ -11,8 +11,11 @@ import Profile from './components/Auth/Profile';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import AnalyticsDashboard from './components/dashboard/AnalyticsDashboard';
 import SupplierDashboard from './components/suppliers/SupplierDashboard';
+import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierManagement';
 import ShipmentDashboard from './components/shipments/ShipmentDashboard';
 import ShipmentTracking from './components/shipments/ShipmentTracking';
+import EnhancedShipmentTracking from './components/shipments/EnhancedShipmentTracking';
+import NotificationCenter from './components/notifications/NotificationCenter';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -117,6 +120,14 @@ function App() {
                   path="/suppliers"
                   element={
                     <ProtectedRoute>
+                      <EnhancedSupplierManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/suppliers/legacy"
+                  element={
+                    <ProtectedRoute>
                       <SupplierDashboard />
                     </ProtectedRoute>
                   }
@@ -133,7 +144,31 @@ function App() {
                   path="/shipments/track/:trackingNumber"
                   element={
                     <ProtectedRoute>
+                      <EnhancedShipmentTracking />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shipments/track"
+                  element={
+                    <ProtectedRoute>
+                      <EnhancedShipmentTracking />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shipments/legacy/track/:trackingNumber"
+                  element={
+                    <ProtectedRoute>
                       <ShipmentTracking />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/notifications"
+                  element={
+                    <ProtectedRoute>
+                      <NotificationCenter />
                     </ProtectedRoute>
                   }
                 />

@@ -50,6 +50,7 @@ const AnalyticsDashboard = () => {
         setLoading(true);
         
         // Simulate API calls for dashboard data
+        // eslint-disable-next-line no-unused-vars
         const [shipmentsRes, suppliersRes, alertsRes] = await Promise.all([
           fetch('/api/shipments/dashboard-stats'),
           fetch('/api/suppliers/dashboard-stats'), 
@@ -97,6 +98,7 @@ const AnalyticsDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const getRiskColor = (score) => {
     if (score <= 1) return 'green';
     if (score <= 2) return 'blue';
