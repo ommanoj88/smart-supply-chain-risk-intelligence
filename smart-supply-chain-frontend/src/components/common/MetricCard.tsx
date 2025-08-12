@@ -4,16 +4,12 @@ import {
   CardContent,
   Typography,
   Box,
-  Chip,
-  IconButton,
   Skeleton,
   useTheme,
 } from '@mui/material';
 import {
   TrendingUp,
   TrendingDown,
-  Info,
-  MoreVert,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 

@@ -2,13 +2,10 @@ import React from 'react';
 import {
   Grid,
   Box,
-  Paper,
   Typography,
   IconButton,
-  Chip,
   Button,
   useTheme,
-  alpha,
 } from '@mui/material';
 import {
   Refresh,
@@ -21,7 +18,6 @@ import {
   Speed,
   Security,
 } from '@mui/icons-material';
-import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import MetricCard from '../common/MetricCard';
 import { 
@@ -32,8 +28,7 @@ import {
 } from '../common/EnhancedCharts';
 import { 
   selectDashboardMetrics, 
-  selectTimeRange, 
-  selectChartData,
+  selectTimeRange,
   selectLastRefresh,
   refreshDashboard,
   setTimeRange 
@@ -46,9 +41,20 @@ export const ExecutiveDashboard: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   
-  const metrics = useSelector(selectDashboardMetrics);
+  // Mock initial metrics data - in real app this would come from API
+  const initialMetrics = {
+    totalSuppliers: 150,
+    activeShipments: 2340,
+    riskAlerts: 7,
+    onTimeDeliveryRate: 94.2,
+    avgRiskScore: 3.1,
+    totalValue: 127500000,
+    monthlyGrowth: 8.3,
+    criticalSuppliers: 3,
+  };
+  
+  const metrics = useSelector(selectDashboardMetrics) || initialMetrics;
   const timeRange = useSelector(selectTimeRange);
-  const chartData = useSelector(selectChartData);
   const lastRefresh = useSelector(selectLastRefresh);
 
   const handleRefresh = () => {

@@ -22,7 +22,6 @@ import {
   Delete,
   Visibility,
   Download,
-  FilterList,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
@@ -89,11 +88,12 @@ export const EnhancedDataGrid: React.FC<EnhancedDataGridProps> = ({
       width: 120,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const actions = [];
+        const actions: React.ReactElement[] = [];
 
         if (onView) {
           actions.push(
             <GridActionsCellItem
+              key="view"
               icon={
                 <Tooltip title="View Details">
                   <Visibility />
@@ -109,6 +109,7 @@ export const EnhancedDataGrid: React.FC<EnhancedDataGridProps> = ({
         if (onEdit) {
           actions.push(
             <GridActionsCellItem
+              key="edit"
               icon={
                 <Tooltip title="Edit">
                   <Edit />
@@ -124,6 +125,7 @@ export const EnhancedDataGrid: React.FC<EnhancedDataGridProps> = ({
         if (onDelete) {
           actions.push(
             <GridActionsCellItem
+              key="delete"
               icon={
                 <Tooltip title="Delete">
                   <Delete />

@@ -19,8 +19,7 @@ import AnalyticsDashboard from './components/dashboard/AnalyticsDashboard';
 import SupplierDashboard from './components/suppliers/SupplierDashboard';
 import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierManagement';
 import ShipmentDashboard from './components/shipments/ShipmentDashboard';
-import ShipmentTracking from './components/shipments/ShipmentTracking';
-import EnhancedShipmentTracking from './components/shipments/EnhancedShipmentTracking';
+import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
 import NotificationCenter from './components/notifications/NotificationCenter';
 
 // Enhanced Query Client with performance optimizations
@@ -30,7 +29,7 @@ const queryClient = new QueryClient({
       retry: 2,
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime in v5)
       refetchOnReconnect: true,
     },
     mutations: {
@@ -213,13 +212,13 @@ function App() {
                     
                     <Route path="/shipments/tracking" element={
                       <ProtectedRoute>
-                        <EnhancedShipmentTracking />
+                        <ShipmentDashboard />
                       </ProtectedRoute>
                     } />
                     
                     <Route path="/shipments/tracking/:trackingNumber" element={
                       <ProtectedRoute>
-                        <ShipmentTracking />
+                        <ShipmentTrackingWrapper />
                       </ProtectedRoute>
                     } />
                     
@@ -248,7 +247,7 @@ function App() {
         
         {/* Development Tools */}
         {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+          <ReactQueryDevtools initialIsOpen={false} />
         )}
       </QueryClientProvider>
     </Provider>

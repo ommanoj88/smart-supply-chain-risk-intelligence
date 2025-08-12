@@ -6,7 +6,6 @@ import {
   Typography,
   Skeleton,
   useTheme,
-  alpha,
 } from '@mui/material';
 import {
   ResponsiveContainer,
@@ -195,7 +194,6 @@ export const EnhancedBarChart: React.FC<BarChartProps> = ({
         <BarChart 
           data={data} 
           margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          layout={horizontal ? 'verseLayout' : 'horizontal'}
         >
           {showGrid && <CartesianGrid strokeDasharray="3 3" />}
           <XAxis 
@@ -328,8 +326,9 @@ export const EnhancedPieChart: React.FC<PieChartProps> = ({
             innerRadius={innerRadius}
             fill="#8884d8"
             dataKey={dataKey}
+            nameKey={nameKey}
           >
-            {data.map((entry, index) => (
+            {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>
