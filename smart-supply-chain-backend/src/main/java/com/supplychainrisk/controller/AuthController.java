@@ -309,13 +309,9 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
             // Generate password reset token and send email
-            String resetToken = authService.generatePasswordResetToken(request.getEmail());
+            boolean success = authService.initiatePasswordReset(request.getEmail());
             
-            if (resetToken != null) {
-                // In a real application, you would send an email here
-                // For now, we'll just log it (in production, remove this log)
-                logger.info("Password reset token generated for {}: {}", request.getEmail(), resetToken);
-                
+            if (success) {
                 return ResponseEntity.ok(Map.of(
                     "message", "Password reset email sent successfully",
                     "email", request.getEmail()
