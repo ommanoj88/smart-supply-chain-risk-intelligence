@@ -306,10 +306,14 @@ public class AuthController {
     // Password Reset Endpoints
     
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, 
+                                           HttpServletRequest httpRequest) {
         try {
+            // Get client identifier for rate limiting
+            String clientId = getClientIdentifier(httpRequest);
+            
             // Generate password reset token and send email
-            boolean success = authService.initiatePasswordReset(request.getEmail());
+            boolean success = authService.initiatePasswordReset(request.getEmail(), clientId);
             
             if (success) {
                 return ResponseEntity.ok(Map.of(
@@ -391,5 +395,21 @@ public class AuthController {
             return request.getRemoteAddr();
         }
         return xForwardedForHeader.split(",")[0];
+    }
+    
+    // Helper method to get client identifier for rate limiting
+    private String getClientIdentifier(HttpServletRequest request) {
+        // Use IP address for non-authenticated requests
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return "ip:" + xForwardedFor.split(",")[0].trim();
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return "ip:" + xRealIp;
+        }
+        
+        return "ip:" + request.getRemoteAddr();
     }
 }

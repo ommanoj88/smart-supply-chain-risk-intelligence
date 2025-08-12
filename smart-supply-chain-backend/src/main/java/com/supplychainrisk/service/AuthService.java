@@ -32,6 +32,9 @@ public class AuthService {
     
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private RateLimitService rateLimitService;
 
     public FirebaseToken verifyToken(String idToken) throws FirebaseAuthException {
         return FirebaseAuth.getInstance().verifyIdToken(idToken);
@@ -116,8 +119,14 @@ public class AuthService {
     // Enhanced Password Reset Methods
     
     @Transactional
-    public boolean initiatePasswordReset(String email) {
+    public boolean initiatePasswordReset(String email, String clientId) {
         try {
+            // Additional rate limiting for password reset
+            if (!rateLimitService.isAllowed(clientId, RateLimitService.RateLimitType.CRITICAL)) {
+                logger.warn("Password reset rate limit exceeded for client: {}", clientId);
+                return false;
+            }
+            
             Optional<User> userOpt = userRepository.findByEmail(email);
             if (userOpt.isEmpty()) {
                 logger.warn("Password reset requested for non-existent email: {}", email);
