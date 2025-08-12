@@ -3,9 +3,15 @@ package com.supplychainrisk.service;
 import com.supplychainrisk.dto.SupplierDTO;
 import com.supplychainrisk.dto.SupplierCategoryDTO;
 import com.supplychainrisk.entity.*;
+import com.supplychainrisk.exception.BusinessException;
 import com.supplychainrisk.repository.*;
 import jakarta.validation.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +23,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Enhanced Supplier Service with enterprise patterns and caching
+ */
 @Service
 @Transactional
 public class SupplierService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SupplierService.class);
     
     @Autowired
     private SupplierRepository supplierRepository;
@@ -36,7 +47,11 @@ public class SupplierService {
     /**
      * Get all suppliers with pagination and sorting
      */
+    @Cacheable(value = "suppliers", key = "#page + '_' + #size + '_' + #sortBy + '_' + #sortDirection")
     public Page<SupplierDTO> getAllSuppliers(int page, int size, String sortBy, String sortDirection) {
+        logger.debug("Fetching suppliers - page: {}, size: {}, sortBy: {}, direction: {}", 
+                    page, size, sortBy, sortDirection);
+        
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         
@@ -45,27 +60,36 @@ public class SupplierService {
     }
     
     /**
-     * Get supplier by ID
+     * Get supplier by ID with caching
      */
+    @Cacheable(value = "suppliers", key = "#id")
     public SupplierDTO getSupplierById(Long id) {
+        logger.debug("Fetching supplier by ID: {}", id);
+        
         Supplier supplier = supplierRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Supplier not found with id: " + id));
+            .orElseThrow(() -> new BusinessException("Supplier not found with id: " + id));
         return convertToDTO(supplier);
     }
     
     /**
-     * Get supplier by supplier code
+     * Get supplier by supplier code with caching
      */
+    @Cacheable(value = "suppliers", key = "'code_' + #supplierCode")
     public SupplierDTO getSupplierByCode(String supplierCode) {
+        logger.debug("Fetching supplier by code: {}", supplierCode);
+        
         Supplier supplier = supplierRepository.findBySupplierCode(supplierCode)
-            .orElseThrow(() -> new RuntimeException("Supplier not found with code: " + supplierCode));
+            .orElseThrow(() -> new BusinessException("Supplier not found with code: " + supplierCode));
         return convertToDTO(supplier);
     }
     
     /**
-     * Create new supplier
+     * Create new supplier with cache eviction
      */
+    @CacheEvict(value = "suppliers", allEntries = true)
     public SupplierDTO createSupplier(SupplierDTO supplierDTO, Long userId) {
+        logger.info("Creating new supplier with code: {}", supplierDTO.getSupplierCode());
+        
         // Validate supplier code uniqueness
         if (supplierRepository.existsBySupplierCode(supplierDTO.getSupplierCode())) {
             throw new ValidationException("Supplier code already exists: " + supplierDTO.getSupplierCode());
@@ -75,7 +99,7 @@ public class SupplierService {
         
         // Set audit fields
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new BusinessException("User not found with id: " + userId));
         supplier.setCreatedBy(user);
         supplier.setUpdatedBy(user);
         
@@ -83,15 +107,21 @@ public class SupplierService {
         riskAssessmentService.calculateRiskScores(supplier);
         
         supplier = supplierRepository.save(supplier);
+        logger.info("Successfully created supplier with ID: {}", supplier.getId());
+        
         return convertToDTO(supplier);
     }
     
     /**
-     * Update existing supplier
+     * Update existing supplier with cache update
      */
+    @CachePut(value = "suppliers", key = "#id")
+    @CacheEvict(value = "suppliers", allEntries = true, condition = "#result != null")
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO, Long userId) {
+        logger.info("Updating supplier with ID: {}", id);
+        
         Supplier existingSupplier = supplierRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Supplier not found with id: " + id));
+            .orElseThrow(() -> new BusinessException("Supplier not found with id: " + id));
         
         // Check if supplier code is being changed and if it's unique
         if (!existingSupplier.getSupplierCode().equals(supplierDTO.getSupplierCode())) {
