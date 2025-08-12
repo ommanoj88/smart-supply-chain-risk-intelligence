@@ -127,4 +127,8 @@ public class UserService {
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+    
+    public List<User> getUsersWithRole(User.Role role) {
+        return userRepository.findByRole(role);
+    }
 }

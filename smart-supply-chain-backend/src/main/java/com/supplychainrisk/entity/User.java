@@ -68,7 +68,8 @@ public class User {
     private LocalDateTime updatedAt;
     
     public enum Role {
-        ADMIN, SUPPLY_MANAGER, VIEWER, AUDITOR
+        ADMIN, SUPPLY_MANAGER, VIEWER, AUDITOR, 
+        SUPER_ADMIN, ORG_ADMIN, ANALYST, SUPPLIER_USER
     }
     
     @PrePersist
