@@ -18,7 +18,7 @@ const GoogleIcon = () => (
 );
 
 const DualAuthLogin = () => {
-  const { signInWithGoogle, loading: authLoading, error: authError } = useAuth();
+  const { signInWithGoogle, demoLogin, loading: authLoading, error: authError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [currentView, setCurrentView] = useState('login'); // 'login', 'reset'
@@ -46,6 +46,18 @@ const DualAuthLogin = () => {
     setError('');
     
     try {
+      // Check for demo credentials first
+      if ((identifier === 'admin' && password === 'password123') ||
+          (identifier === 'manager' && password === 'password123') ||
+          (identifier === 'viewer' && password === 'password123')) {
+        
+        // Use demo login
+        await demoLogin(identifier);
+        navigate(from, { replace: true });
+        return;
+      }
+      
+      // Otherwise try backend login
       const response = await fetch('/auth/login', {
         method: 'POST',
         headers: {
