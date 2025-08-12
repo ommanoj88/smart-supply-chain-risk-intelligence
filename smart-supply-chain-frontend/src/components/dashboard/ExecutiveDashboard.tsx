@@ -6,6 +6,7 @@ import {
   IconButton,
   Button,
   useTheme,
+  alpha,
 } from '@mui/material';
 import {
   Refresh,
@@ -18,6 +19,7 @@ import {
   Speed,
   Security,
 } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import MetricCard from '../common/MetricCard';
 import { 
@@ -107,197 +109,469 @@ export const ExecutiveDashboard: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
-          <Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-            Executive Dashboard
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Real-time supply chain intelligence and performance metrics
-          </Typography>
-        </Box>
-        
-        <Box display="flex" alignItems="center" gap={2}>
-          {/* Time Range Selector */}
-          <Box display="flex" gap={1}>
-            {timeRangeOptions.map((option) => (
-              <Button
-                key={option.value}
-                variant={timeRange === option.value ? 'contained' : 'outlined'}
-                size="small"
-                onClick={() => handleTimeRangeChange(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </Box>
-          
-          {/* Refresh Button */}
-          <IconButton onClick={handleRefresh} color="primary">
-            <Refresh />
-          </IconButton>
-          
-          {/* Last Refresh */}
-          {lastRefresh && (
-            <Typography variant="caption" color="text.secondary">
-              Last updated: {new Date(lastRefresh).toLocaleTimeString()}
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.02)} 0%, ${alpha(theme.palette.secondary.main, 0.01)} 100%)`,
+      p: { xs: 2, md: 4 }
+    }}>
+      {/* Premium Header Section */}
+      <Box 
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', md: 'center' },
+          mb: 4,
+          p: 3,
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: 3,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)',
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Box>
+            <Typography 
+              variant="h3" 
+              component="h1" 
+              fontWeight={700}
+              sx={{
+                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                mb: 1,
+              }}
+            >
+              Executive Dashboard
             </Typography>
-          )}
-        </Box>
+            <Typography 
+              variant="subtitle1" 
+              color="text.secondary"
+              sx={{ 
+                opacity: 0.8,
+                fontWeight: 500,
+                letterSpacing: '0.025em',
+              }}
+            >
+              Real-time supply chain intelligence and performance metrics
+            </Typography>
+            {lastRefresh && (
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <Box 
+                  sx={{ 
+                    width: 8, 
+                    height: 8, 
+                    borderRadius: '50%', 
+                    backgroundColor: theme.palette.success.main,
+                    animation: 'pulse 2s infinite',
+                  }} 
+                />
+                <Typography variant="caption" color="text.secondary">
+                  Live • Last updated: {new Date(lastRefresh).toLocaleTimeString()}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Box display="flex" alignItems="center" gap={2} mt={{ xs: 2, md: 0 }}>
+            {/* Time Range Selector */}
+            <Box display="flex" gap={1} flexWrap="wrap">
+              {timeRangeOptions.map((option, index) => (
+                <motion.div
+                  key={option.value}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <Button
+                    variant={timeRange === option.value ? 'contained' : 'outlined'}
+                    size="medium"
+                    onClick={() => handleTimeRangeChange(option.value)}
+                    sx={{
+                      borderRadius: 2.5,
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      minWidth: 'auto',
+                      px: 2.5,
+                      py: 1,
+                      '&.MuiButton-contained': {
+                        boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.3)}`,
+                      },
+                    }}
+                  >
+                    {option.label}
+                  </Button>
+                </motion.div>
+              ))}
+            </Box>
+            
+            {/* Refresh Button */}
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <IconButton 
+                onClick={handleRefresh} 
+                size="large"
+                sx={{
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                    transform: 'rotate(180deg)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <Refresh />
+              </IconButton>
+            </motion.div>
+          </Box>
+        </motion.div>
       </Box>
 
-      {/* Key Metrics */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Total Suppliers"
-            value={metrics.totalSuppliers.toLocaleString()}
-            subtitle="Active supply partners"
-            trend={{ value: 5.2, direction: 'up', period: 'vs last month' }}
-            status="success"
-            icon={<Inventory />}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Active Shipments"
-            value={metrics.activeShipments.toLocaleString()}
-            subtitle="In-transit deliveries"
-            trend={{ value: 12.3, direction: 'up', period: 'vs last week' }}
-            status="info"
-            icon={<LocalShipping />}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Risk Alerts"
-            value={metrics.riskAlerts}
-            subtitle="Requiring attention"
-            trend={{ value: 8.1, direction: 'down', period: 'vs last week' }}
-            status={metrics.riskAlerts > 10 ? 'warning' : 'success'}
-            icon={<Warning />}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="On-Time Delivery"
-            value={`${metrics.onTimeDeliveryRate.toFixed(1)}%`}
-            subtitle="Last 30 days"
-            trend={{ value: 2.1, direction: 'up', period: 'vs target' }}
-            status="success"
-            icon={<Speed />}
-          />
-        </Grid>
-      </Grid>
+      {/* Premium KPI Section */}
+      <Box mb={4}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Typography 
+            variant="h5" 
+            fontWeight={600}
+            sx={{ 
+              mb: 3,
+              color: theme.palette.text.primary,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            <Box 
+              sx={{ 
+                width: 4, 
+                height: 24, 
+                backgroundColor: theme.palette.primary.main, 
+                borderRadius: 2,
+              }} 
+            />
+            Key Performance Indicators
+          </Typography>
+        </motion.div>
 
-      {/* Financial Metrics */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Total Value"
-            value={`$${(metrics.totalValue / 1000000).toFixed(1)}M`}
-            subtitle="Supply chain value"
-            trend={{ value: 15.8, direction: 'up', period: 'YoY growth' }}
-            status="success"
-            icon={<AccountBalance />}
-          />
+        <Grid container spacing={3}>
+          {[
+            {
+              title: "Total Suppliers",
+              value: metrics.totalSuppliers.toLocaleString(),
+              subtitle: "Active supply partners",
+              trend: { value: 5.2, direction: 'up' as const, period: 'vs last month', label: 'growth' },
+              icon: <Inventory />,
+              colorScheme: 'success' as const,
+              target: 200,
+              description: "Network expansion",
+            },
+            {
+              title: "Active Shipments",
+              value: metrics.activeShipments.toLocaleString(),
+              subtitle: "In-transit deliveries",
+              trend: { value: 12.3, direction: 'up' as const, period: 'vs last week', label: 'increase' },
+              icon: <LocalShipping />,
+              colorScheme: 'primary' as const,
+              target: 2500,
+              description: "Current logistics",
+            },
+            {
+              title: "Risk Alerts",
+              value: metrics.riskAlerts,
+              subtitle: "Requiring attention",
+              trend: { value: 8.1, direction: 'down' as const, period: 'vs last week', label: 'improvement' },
+              icon: <Warning />,
+              colorScheme: metrics.riskAlerts > 10 ? 'warning' as const : 'success' as const,
+              target: 5,
+              description: "Risk mitigation",
+            },
+            {
+              title: "On-Time Delivery",
+              value: `${metrics.onTimeDeliveryRate.toFixed(1)}%`,
+              subtitle: "Performance metric",
+              trend: { value: 2.1, direction: 'up' as const, period: 'vs target', label: 'improvement' },
+              icon: <Speed />,
+              colorScheme: 'accent' as const,
+              target: 95,
+              unit: "%",
+              description: "Service excellence",
+            },
+          ].map((metric, index) => (
+            <Grid item xs={12} sm={6} lg={3} key={metric.title}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+              >
+                <MetricCard
+                  {...metric}
+                  variant="premium"
+                  size="medium"
+                />
+              </motion.div>
+            </Grid>
+          ))}
         </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Avg Risk Score"
-            value={metrics.avgRiskScore.toFixed(1)}
-            subtitle="Lower is better"
-            trend={{ value: 3.2, direction: 'down', period: 'improvement' }}
-            status="success"
-            icon={<Security />}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Monthly Growth"
-            value={`${metrics.monthlyGrowth.toFixed(1)}%`}
-            subtitle="Revenue increase"
-            trend={{ value: 1.8, direction: 'up', period: 'accelerating' }}
-            status="success"
-            icon={<TrendingUp />}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={3}>
-          <MetricCard
-            title="Critical Suppliers"
-            value={metrics.criticalSuppliers}
-            subtitle="High-risk partners"
-            trend={{ value: 12.5, direction: 'down', period: 'reduced risk' }}
-            status={metrics.criticalSuppliers > 5 ? 'warning' : 'success'}
-            icon={<Assessment />}
-          />
-        </Grid>
-      </Grid>
+      </Box>
 
-      {/* Charts Section */}
-      <Grid container spacing={3}>
-        {/* Risk Trends */}
-        <Grid item xs={12} lg={8}>
-          <EnhancedLineChart
-            title="Risk Trends Over Time"
-            data={riskTrendsData}
-            height={350}
-            xKey="date"
-            yKeys={['risk', 'compliance', 'financial']}
-            colors={[theme.palette.error.main, theme.palette.warning.main, theme.palette.success.main]}
-          />
+      {/* Financial & Risk Metrics */}
+      <Box mb={4}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+        >
+          <Typography 
+            variant="h5" 
+            fontWeight={600}
+            sx={{ 
+              mb: 3,
+              color: theme.palette.text.primary,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            <Box 
+              sx={{ 
+                width: 4, 
+                height: 24, 
+                backgroundColor: theme.palette.secondary.main, 
+                borderRadius: 2,
+              }} 
+            />
+            Financial & Risk Intelligence
+          </Typography>
+        </motion.div>
+
+        <Grid container spacing={3}>
+          {[
+            {
+              title: "Total Value",
+              value: `$${(metrics.totalValue / 1000000).toFixed(1)}M`,
+              subtitle: "Supply chain value",
+              trend: { value: 15.8, direction: 'up' as const, period: 'YoY', label: 'growth' },
+              icon: <AccountBalance />,
+              colorScheme: 'success' as const,
+              unit: "M",
+              description: "Enterprise value",
+            },
+            {
+              title: "Risk Score",
+              value: metrics.avgRiskScore.toFixed(1),
+              subtitle: "Lower is better",
+              trend: { value: 3.2, direction: 'down' as const, period: 'improvement', label: 'better' },
+              icon: <Security />,
+              colorScheme: 'accent' as const,
+              target: 2.0,
+              description: "Risk management",
+            },
+            {
+              title: "Monthly Growth",
+              value: `${metrics.monthlyGrowth.toFixed(1)}%`,
+              subtitle: "Revenue increase",
+              trend: { value: 1.8, direction: 'up' as const, period: 'accelerating', label: 'momentum' },
+              icon: <TrendingUp />,
+              colorScheme: 'primary' as const,
+              unit: "%",
+              description: "Business growth",
+            },
+            {
+              title: "Critical Issues",
+              value: metrics.criticalSuppliers,
+              subtitle: "High-priority items",
+              trend: { value: 12.5, direction: 'down' as const, period: 'resolved', label: 'improvement' },
+              icon: <Assessment />,
+              colorScheme: metrics.criticalSuppliers > 5 ? 'warning' as const : 'success' as const,
+              target: 0,
+              description: "Issue resolution",
+            },
+          ].map((metric, index) => (
+            <Grid item xs={12} sm={6} lg={3} key={metric.title}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+              >
+                <MetricCard
+                  {...metric}
+                  variant="glass"
+                  size="medium"
+                />
+              </motion.div>
+            </Grid>
+          ))}
         </Grid>
-        
-        {/* Supplier Distribution */}
-        <Grid item xs={12} lg={4}>
-          <EnhancedPieChart
-            title="Supplier Distribution by Region"
-            data={supplierDistributionData}
-            height={350}
-            dataKey="value"
-            nameKey="name"
-            colors={[
-              theme.palette.primary.main,
-              theme.palette.secondary.main,
-              theme.palette.info.main,
-              theme.palette.warning.main,
-            ]}
+      </Box>
+
+      {/* Advanced Analytics Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 1.2 }}
+      >
+        <Typography 
+          variant="h5" 
+          fontWeight={600}
+          sx={{ 
+            mb: 3,
+            color: theme.palette.text.primary,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
+          <Box 
+            sx={{ 
+              width: 4, 
+              height: 24, 
+              backgroundColor: theme.palette.warning.main, 
+              borderRadius: 2,
+            }} 
           />
+          Advanced Analytics & Insights
+        </Typography>
+
+        <Grid container spacing={3}>
+          {/* Risk Trends */}
+          <Grid item xs={12} lg={8}>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 1.3 }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  overflow: 'hidden',
+                  height: '100%',
+                }}
+              >
+                <EnhancedLineChart
+                  title="Risk Trends Over Time"
+                  data={riskTrendsData}
+                  height={350}
+                  xKey="date"
+                  yKeys={['risk', 'compliance', 'financial']}
+                  colors={[theme.palette.error.main, theme.palette.warning.main, theme.palette.success.main]}
+                />
+              </Box>
+            </motion.div>
+          </Grid>
+          
+          {/* Supplier Distribution */}
+          <Grid item xs={12} lg={4}>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 1.4 }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  overflow: 'hidden',
+                  height: '100%',
+                }}
+              >
+                <EnhancedPieChart
+                  title="Supplier Distribution by Region"
+                  data={supplierDistributionData}
+                  height={350}
+                  dataKey="value"
+                  nameKey="name"
+                  colors={[
+                    theme.palette.primary.main,
+                    theme.palette.secondary.main,
+                    theme.palette.info.main,
+                    theme.palette.warning.main,
+                  ]}
+                />
+              </Box>
+            </motion.div>
+          </Grid>
+          
+          {/* Shipment Volume */}
+          <Grid item xs={12} lg={6}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.5 }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  overflow: 'hidden',
+                  height: '100%',
+                }}
+              >
+                <EnhancedAreaChart
+                  title="Shipment Volume & Value Trends"
+                  data={shipmentVolumeData}
+                  height={300}
+                  xKey="month"
+                  yKey="volume"
+                  colors={[theme.palette.primary.main]}
+                  gradient
+                />
+              </Box>
+            </motion.div>
+          </Grid>
+          
+          {/* Performance Metrics */}
+          <Grid item xs={12} lg={6}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.6 }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: 3,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  overflow: 'hidden',
+                  height: '100%',
+                }}
+              >
+                <EnhancedBarChart
+                  title="Performance vs Targets"
+                  data={performanceData}
+                  height={300}
+                  xKey="metric"
+                  yKey="current"
+                  colors={[theme.palette.success.main]}
+                />
+              </Box>
+            </motion.div>
+          </Grid>
         </Grid>
-        
-        {/* Shipment Volume */}
-        <Grid item xs={12} lg={6}>
-          <EnhancedAreaChart
-            title="Shipment Volume & Value"
-            data={shipmentVolumeData}
-            height={300}
-            xKey="month"
-            yKey="volume"
-            colors={[theme.palette.primary.main]}
-            gradient
-          />
-        </Grid>
-        
-        {/* Performance Metrics */}
-        <Grid item xs={12} lg={6}>
-          <EnhancedBarChart
-            title="Performance vs Targets"
-            data={performanceData}
-            height={300}
-            xKey="metric"
-            yKey="current"
-            colors={[theme.palette.success.main]}
-          />
-        </Grid>
-      </Grid>
+      </motion.div>
     </Box>
   );
 };

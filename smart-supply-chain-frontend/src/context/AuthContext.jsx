@@ -143,11 +143,35 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const demoLogin = async (username) => {
+    setLoading(true);
+    setError(null);
+    
+    // Simulate demo user login without Firebase
+    const demoUser = {
+      id: 'demo-user-' + username,
+      email: `${username}@demo.com`,
+      displayName: username.charAt(0).toUpperCase() + username.slice(1),
+      role: username === 'admin' ? 'Admin' : username === 'manager' ? 'Manager' : 'Viewer',
+      photoURL: null,
+    };
+    
+    // Store demo user data
+    localStorage.setItem('user', JSON.stringify(demoUser));
+    localStorage.setItem('authToken', 'demo-token-' + Date.now());
+    
+    setUser(demoUser);
+    setLoading(false);
+    
+    return demoUser;
+  };
+
   const value = {
     user,
     loading,
     error,
     signInWithGoogle,
+    demoLogin,
     logout,
     refreshUser,
     isAuthenticated: !!user,
