@@ -12,29 +12,19 @@ import {
   Avatar,
   LinearProgress,
   Chip,
-  Divider,
 } from '@mui/material';
 import {
   Refresh,
-  TrendingUp,
-  Inventory,
   LocalShipping,
-  Warning,
   Assessment,
-  AccountBalance,
-  Speed,
-  Security,
-  Business,
-  Timeline,
-  Public,
-  Analytics,
   MonetizationOn,
   Shield,
   CheckCircle,
   ErrorOutline,
+  Business,
+  Security,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
 import MetricCard from '../common/MetricCard';
 import { 
   EnhancedAreaChart, 
@@ -114,31 +104,6 @@ export const ExecutiveDashboard: React.FC = () => {
       setLastUpdated(new Date());
     }, 1000);
   };
-
-  // Enterprise KPI data for charts
-  const riskTrendData = [
-    { month: 'Jan', riskScore: 28, incidents: 12, cost: 1.2 },
-    { month: 'Feb', riskScore: 25, incidents: 8, cost: 0.9 },
-    { month: 'Mar', riskScore: 23, incidents: 6, cost: 0.7 },
-    { month: 'Apr', riskScore: 26, incidents: 9, cost: 1.1 },
-    { month: 'May', riskScore: 22, incidents: 5, cost: 0.6 },
-    { month: 'Jun', riskScore: 23, incidents: 7, cost: 0.8 },
-  ];
-
-  const performanceData = [
-    { category: 'On-Time Delivery', current: 94.2, target: 95, benchmark: 89 },
-    { category: 'Quality Score', current: 96.8, target: 98, benchmark: 92 },
-    { category: 'Cost Efficiency', current: 88.5, target: 90, benchmark: 85 },
-    { category: 'Supplier Compliance', current: 91.8, target: 95, benchmark: 88 },
-  ];
-
-  const regionalRiskData = [
-    { region: 'North America', value: 15, color: theme.palette.success.main },
-    { region: 'Europe', value: 22, color: theme.palette.warning.main },
-    { region: 'Asia Pacific', value: 35, color: theme.palette.error.main },
-    { region: 'Latin America', value: 18, color: theme.palette.info.main },
-    { region: 'Middle East', value: 10, color: theme.palette.secondary.main },
-  ];
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -541,7 +506,7 @@ export const ExecutiveDashboard: React.FC = () => {
               icon: <Assessment />,
               colorScheme: 'accent' as const,
             },
-          ].map((metric, index) => (
+          ].map((metric) => (
             <Grid item xs={12} sm={6} lg={3} key={metric.title}>
               <motion.div variants={cardVariants} whileHover="hover">
                 <MetricCard

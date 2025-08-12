@@ -34,7 +34,6 @@ import {
   LinearProgress,
 } from '@mui/material';
 import {
-  Add,
   Edit,
   Delete,
   Search,
@@ -55,8 +54,7 @@ import {
   Refresh,
   MoreVert,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../context/AuthContext';
+import { motion } from 'framer-motion';
 
 interface User {
   id: string;
@@ -99,17 +97,13 @@ interface RoleDefinition {
  */
 const UserManagement: React.FC = () => {
   const theme = useTheme();
-  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [currentTab, setCurrentTab] = useState(0);
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
@@ -225,7 +219,7 @@ const UserManagement: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -371,8 +365,8 @@ const UserManagement: React.FC = () => {
   };
 
   const handleEditUser = (user: User) => {
-    setEditingUser(user);
-    setOpenEditDialog(true);
+    console.log('Edit user:', user);
+    // TODO: Implement edit functionality
   };
 
   const handleDeleteUser = async (userId: string) => {
@@ -382,8 +376,8 @@ const UserManagement: React.FC = () => {
   };
 
   const handleBulkAction = (action: string) => {
-    console.log(`Performing ${action} on users:`, selectedUsers);
-    // Implement bulk actions
+    console.log(`Performing ${action} on selected users`);
+    // TODO: Implement bulk actions
   };
 
   const cardVariants = {
@@ -545,7 +539,7 @@ const UserManagement: React.FC = () => {
       >
         <Card sx={{ borderRadius: 3 }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={currentTab} onChange={(e, v) => setCurrentTab(v)}>
+            <Tabs value={currentTab} onChange={(_, v) => setCurrentTab(v)}>
               <Tab label="All Users" />
               <Tab label="Role Matrix" />
               <Tab label="Activity Log" />
@@ -611,11 +605,11 @@ const UserManagement: React.FC = () => {
                 </Button>
               </Box>
 
-              {/* Bulk Actions */}
-              {selectedUsers.length > 0 && (
+              {/* Bulk Actions - Placeholder for future implementation */}
+              {false && (
                 <Box display="flex" gap={1} mb={2}>
                   <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>
-                    {selectedUsers.length} users selected
+                    Selected users actions
                   </Typography>
                   <Button size="small" onClick={() => handleBulkAction('activate')}>
                     Activate
@@ -678,7 +672,7 @@ const UserManagement: React.FC = () => {
                             </TableCell>
                             <TableCell>
                               <Chip
-                                icon={roleDefinition?.icon}
+                                icon={roleDefinition?.icon as React.ReactElement}
                                 label={roleDefinition?.name}
                                 size="small"
                                 sx={{
