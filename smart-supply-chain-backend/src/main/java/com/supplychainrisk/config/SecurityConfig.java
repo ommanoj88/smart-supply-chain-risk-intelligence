@@ -3,7 +3,6 @@ package com.supplychainrisk.config;
 import com.supplychainrisk.filter.SecurityHeadersFilter;
 import com.supplychainrisk.security.FirebaseAuthenticationFilter;
 import com.supplychainrisk.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,50 +10,45 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private FirebaseAuthenticationFilter firebaseAuthenticationFilter;
-    
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
-    @Autowired
-    private SecurityHeadersFilter securityHeadersFilter;
-    
-    @Autowired
-    private CsrfTokenRepository csrfTokenRepository;
-    
-    @Autowired
-    private CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler;
-
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                         JwtAuthenticationFilter jwtAuthenticationFilter,
+                                         FirebaseAuthenticationFilter firebaseAuthenticationFilter,
+                                         CsrfTokenRepository csrfTokenRepository,
+                                         CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf
                 .csrfTokenRepository(csrfTokenRepository)
                 .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
-                .ignoringRequestMatchers("/auth/login", "/auth/register", "/health", "/public/**", "/mock-apis/**")
             )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(firebaseAuthenticationFilter, JwtAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.deny())
@@ -72,10 +66,7 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/supply-manager/**").hasAnyRole("ADMIN", "SUPPLY_MANAGER")
                 .anyRequest().authenticated()
-            )
-            .addFilterBefore(securityHeadersFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(firebaseAuthenticationFilter, JwtAuthenticationFilter.class);
+            );
 
         return http.build();
     }

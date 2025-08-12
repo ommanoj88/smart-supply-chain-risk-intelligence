@@ -1,10 +1,10 @@
+import React from 'react';
+
 // Performance monitoring service for React application
 class PerformanceMonitor {
   private metrics: Map<string, number> = new Map();
-  private navigationStartTime: number;
 
   constructor() {
-    this.navigationStartTime = performance.timeOrigin || performance.timing?.navigationStart || Date.now();
     this.setupPerformanceObserver();
   }
 

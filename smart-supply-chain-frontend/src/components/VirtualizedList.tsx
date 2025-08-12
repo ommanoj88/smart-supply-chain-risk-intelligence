@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 
 interface VirtualizedListProps<T> {
   items: T[];
@@ -61,7 +61,7 @@ export const VirtualizedList = <T,>({
 
   // Visible items
   const visibleItems = useMemo(() => {
-    const result = [];
+    const result: Array<{ item: T; index: number; key: string | number }> = [];
     for (let i = visibleRange.startIndex; i <= visibleRange.endIndex; i++) {
       if (items[i]) {
         result.push({
@@ -354,8 +354,7 @@ function throttle<T extends (...args: any[]) => any>(func: T, limit: number): T 
 // Hook for infinite scrolling
 export const useInfiniteScroll = <T,>(
   fetchMore: () => Promise<T[]>,
-  hasMore: boolean,
-  threshold: number = 100
+  hasMore: boolean
 ) => {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);

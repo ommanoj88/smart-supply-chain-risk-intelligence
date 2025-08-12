@@ -117,7 +117,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       if (fallback) {
         setCurrentSrc(fallback);
       }
-      onError?.(error);
+      onError?.(error as Event);
     };
 
     img.src = src;

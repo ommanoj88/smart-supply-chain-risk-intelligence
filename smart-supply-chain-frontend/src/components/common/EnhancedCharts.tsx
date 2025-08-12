@@ -347,9 +347,11 @@ export const EnhancedPieChart: React.FC<PieChartProps> = ({
   );
 };
 
-export default {
+const EnhancedCharts = {
   EnhancedAreaChart,
   EnhancedBarChart,
   EnhancedLineChart,
   EnhancedPieChart,
 };
+
+export default EnhancedCharts;

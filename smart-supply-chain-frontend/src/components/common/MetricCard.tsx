@@ -53,7 +53,6 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   value,
   subtitle,
   trend,
-  status = 'neutral',
   icon,
   loading = false,
   onClick,

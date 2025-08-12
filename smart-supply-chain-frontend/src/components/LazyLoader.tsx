@@ -3,7 +3,7 @@ import { performanceMonitor } from '../services/performanceMonitor';
 
 interface LazyComponentWrapperProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType | React.ReactElement;
+  fallback?: React.ReactNode;
   name?: string;
 }
 
@@ -48,7 +48,7 @@ export const useLazyComponent = <T extends React.ComponentType<any>>(
     return lazy(() => {
       return importFn().then(module => {
         const loadEnd = performance.now();
-        performanceMonitor.measureBundleLoad(componentName, loadStart);
+        performanceMonitor.measureBundleLoad(componentName, loadEnd - loadStart);
         return module;
       });
     });
@@ -59,13 +59,13 @@ export const useLazyComponent = <T extends React.ComponentType<any>>(
 export const createLazyComponent = <T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   componentName: string,
-  fallback?: React.ComponentType | React.ReactElement
+  fallback?: React.ReactNode
 ) => {
   const LazyComponent = useLazyComponent(importFn, componentName);
   
   return React.forwardRef<any, React.ComponentProps<T>>((props, ref) => (
     <LazyComponentWrapper name={componentName} fallback={fallback}>
-      <LazyComponent {...props} ref={ref} />
+      <LazyComponent {...(props as any)} ref={ref} />
     </LazyComponentWrapper>
   ));
 };
@@ -146,7 +146,7 @@ export const useInViewLazy = <T extends React.ComponentType<any>>(
 export const LazyOnScroll: React.FC<{
   importFn: () => Promise<{ default: React.ComponentType<any> }>;
   componentName: string;
-  fallback?: React.ComponentType | React.ReactElement;
+  fallback?: React.ReactNode;
   height?: string;
   className?: string;
   [key: string]: any;
@@ -167,9 +167,9 @@ export const LazyOnScroll: React.FC<{
       style={{ minHeight: height }}
     >
       {LazyComponent ? (
-        <LazyComponent {...props} />
+        React.createElement(LazyComponent as React.ComponentType<any>, props)
       ) : isVisible ? (
-        fallback
+        fallback as React.ReactNode
       ) : (
         <div className="lazy-placeholder">Content will load when visible</div>
       )}
