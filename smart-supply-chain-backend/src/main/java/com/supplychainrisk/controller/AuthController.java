@@ -306,16 +306,16 @@ public class AuthController {
     // Password Reset Endpoints
     
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request, 
+                                           HttpServletRequest httpRequest) {
         try {
-            // Generate password reset token and send email
-            String resetToken = authService.generatePasswordResetToken(request.getEmail());
+            // Get client identifier for rate limiting
+            String clientId = getClientIdentifier(httpRequest);
             
-            if (resetToken != null) {
-                // In a real application, you would send an email here
-                // For now, we'll just log it (in production, remove this log)
-                logger.info("Password reset token generated for {}: {}", request.getEmail(), resetToken);
-                
+            // Generate password reset token and send email
+            boolean success = authService.initiatePasswordReset(request.getEmail(), clientId);
+            
+            if (success) {
                 return ResponseEntity.ok(Map.of(
                     "message", "Password reset email sent successfully",
                     "email", request.getEmail()
@@ -395,5 +395,21 @@ public class AuthController {
             return request.getRemoteAddr();
         }
         return xForwardedForHeader.split(",")[0];
+    }
+    
+    // Helper method to get client identifier for rate limiting
+    private String getClientIdentifier(HttpServletRequest request) {
+        // Use IP address for non-authenticated requests
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return "ip:" + xForwardedFor.split(",")[0].trim();
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return "ip:" + xRealIp;
+        }
+        
+        return "ip:" + request.getRemoteAddr();
     }
 }

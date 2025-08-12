@@ -2,6 +2,7 @@ package com.supplychainrisk.security;
 
 import com.supplychainrisk.entity.User;
 import com.supplychainrisk.service.UserService;
+import com.supplychainrisk.service.UserSessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -26,6 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserSessionService userSessionService;
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -51,7 +56,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 
-                if (jwtUtil.validateToken(jwt, username) && user.getIsActive()) {
+                // Check if user is active and not locked
+                if (!user.getIsActive() || isUserLocked(user)) {
+                    logger.debug("User is inactive or locked: " + username);
+                } else if (jwtUtil.validateToken(jwt, username) && userSessionService.isValidSession(jwt)) {
+                    // Update last login time
+                    user.setLastLoginAt(LocalDateTime.now());
+                    userService.saveUser(user);
+                    
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             user,
                             null,
@@ -64,5 +76,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         filterChain.doFilter(request, response);
+    }
+    
+    private boolean isUserLocked(User user) {
+        return user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now());
     }
 }
