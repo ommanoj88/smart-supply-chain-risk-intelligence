@@ -6,30 +6,14 @@ import {
   IconButton,
   useTheme,
   alpha,
-  Card,
-  CardContent,
-  Avatar,
-  LinearProgress,
-  Chip,
-  Skeleton,
-  CircularProgress,
 } from '@mui/material';
 import {
   Refresh,
   LocalShipping,
-  Assessment,
   MonetizationOn,
   Shield,
-  CheckCircle,
-  ErrorOutline,
-  Business,
-  Security,
-  TrendingUp,
   Warning,
-  Timeline,
   Analytics,
-  Speed,
-  AccountBalance,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { 
@@ -37,7 +21,6 @@ import {
   PremiumBarChart, 
   PremiumLineChart, 
   PremiumPieChart,
-  D3RadialProgress,
 } from '../common/PremiumCharts';
 // import { 
 //   Animated3DBarChart,
@@ -46,12 +29,9 @@ import {
 import { 
   PremiumKPICard,
   EnhancedSearchBar,
-  AnimatedCounter,
   ProgressRing,
   EnhancedFloatingActionButton,
   GlassCard,
-  PremiumButton,
-  AnimatedLinearProgress,
 } from '../ui/PremiumComponents';
 
 /**
@@ -596,7 +576,6 @@ export const ExecutiveDashboard: React.FC = () => {
       <EnhancedFloatingActionButton
         icon={<Analytics />}
         onClick={() => console.log('Advanced analytics clicked')}
-        tooltip="Advanced Analytics"
         color="primary"
         size="medium"
       />

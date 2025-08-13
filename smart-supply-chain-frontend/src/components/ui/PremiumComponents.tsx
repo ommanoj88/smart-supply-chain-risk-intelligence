@@ -8,18 +8,11 @@ import {
   IconButton,
   TextField,
   Chip,
-  Avatar,
-  Badge,
   LinearProgress,
   CircularProgress,
   Paper,
   useTheme,
   alpha,
-  Fade,
-  Grow,
-  Slide,
-  Zoom,
-  Collapse,
   styled,
   keyframes,
 } from '@mui/material';
@@ -27,19 +20,9 @@ import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion'
 import {
   Search,
   FilterList,
-  Download,
-  Share,
-  Fullscreen,
-  Refresh,
-  MoreVert,
   TrendingUp,
   TrendingDown,
   Remove,
-  Visibility,
-  VisibilityOff,
-  PlayArrow,
-  Pause,
-  Stop,
 } from '@mui/icons-material';
 
 // Enhanced Animation Keyframes
@@ -67,15 +50,6 @@ const float = keyframes`
   }
   50% {
     transform: translateY(-10px);
-  }
-`;
-
-const pulse = keyframes`
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
   }
 `;
 
@@ -544,7 +518,6 @@ const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   variant = 'glass',
   size = 'medium',
   showFilters = false,
-  filterOptions = [],
 }) => {
   const theme = useTheme();
   const [focused, setFocused] = useState(false);
@@ -686,7 +659,6 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   animationDelay = 0,
 }) => {
   const [count, setCount] = useState(0);
-  const controls = useAnimation();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
@@ -713,6 +685,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
       return () => clearTimeout(timer);
     }
+    return () => {}; // Return empty cleanup function for else case
   }, [inView, value, duration, animationDelay]);
 
   return (
@@ -839,14 +812,12 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
 const EnhancedFloatingActionButton: React.FC<{
   icon: React.ReactNode;
   onClick?: () => void;
-  tooltip?: string;
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error';
   size?: 'small' | 'medium' | 'large';
   position?: { bottom?: number; right?: number; top?: number; left?: number };
 }> = ({ 
   icon, 
   onClick, 
-  tooltip, 
   color = 'primary', 
   size = 'medium',
   position = { bottom: 24, right: 24 },
