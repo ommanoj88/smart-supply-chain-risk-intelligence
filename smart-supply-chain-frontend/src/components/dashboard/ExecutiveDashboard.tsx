@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   IconButton,
-  Button,
   useTheme,
   alpha,
   Card,
@@ -12,6 +11,8 @@ import {
   Avatar,
   LinearProgress,
   Chip,
+  Skeleton,
+  CircularProgress,
 } from '@mui/material';
 import {
   Refresh,
@@ -23,15 +24,35 @@ import {
   ErrorOutline,
   Business,
   Security,
+  TrendingUp,
+  Warning,
+  Timeline,
+  Analytics,
+  Speed,
+  AccountBalance,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import MetricCard from '../common/MetricCard';
 import { 
-  EnhancedAreaChart, 
-  EnhancedBarChart, 
-  EnhancedLineChart, 
-  EnhancedPieChart 
-} from '../common/EnhancedCharts';
+  PremiumAreaChart, 
+  PremiumBarChart, 
+  PremiumLineChart, 
+  PremiumPieChart,
+  D3RadialProgress,
+} from '../common/PremiumCharts';
+// import { 
+//   Animated3DBarChart,
+//   SupplierNetwork3D,
+// } from '../common/Premium3DCharts';
+import { 
+  PremiumKPICard,
+  EnhancedSearchBar,
+  AnimatedCounter,
+  ProgressRing,
+  EnhancedFloatingActionButton,
+  GlassCard,
+  PremiumButton,
+  AnimatedLinearProgress,
+} from '../ui/PremiumComponents';
 
 /**
  * Enterprise-Grade Executive Dashboard with Advanced Analytics
@@ -45,18 +66,107 @@ import {
 export const ExecutiveDashboard: React.FC = () => {
   const theme = useTheme();
   const [dashboardData, setDashboardData] = useState({
-    supplyChainHealth: 0,
-    totalCostImpact: 0,
-    riskExposureIndex: 0,
-    onTimePerformance: 0,
-    supplierReliability: 0,
-    activeShipments: 0,
-    totalSuppliers: 0,
-    highRiskAlerts: 0,
-    costSavings: 0,
-    budgetVariance: 0,
+    supplyChainHealth: 87.3,
+    totalCostImpact: 2450000,
+    riskExposureIndex: 34.2,
+    activeShipments: 1247,
+    totalSuppliers: 156,
+    onTimeDeliveryRate: 94.8,
+    averageRiskScore: 2.4,
+    monthlyGrowth: 8.5,
+    criticalAlerts: 12,
+    riskTrends: [
+      { date: 'Jan', high: 15, medium: 45, low: 89 },
+      { date: 'Feb', high: 12, medium: 38, low: 95 },
+      { date: 'Mar', high: 18, medium: 42, low: 87 },
+      { date: 'Apr', high: 9, medium: 35, low: 102 },
+      { date: 'May', high: 14, medium: 41, low: 93 },
+      { date: 'Jun', high: 11, medium: 29, low: 108 },
+    ],
+    financialImpact: [
+      { month: 'Jan', savings: 180000, costs: 45000 },
+      { month: 'Feb', savings: 220000, costs: 38000 },
+      { month: 'Mar', savings: 195000, costs: 52000 },
+      { month: 'Apr', savings: 240000, costs: 41000 },
+      { month: 'May', savings: 210000, costs: 47000 },
+      { month: 'Jun', savings: 265000, costs: 39000 },
+    ],
+    supplierDistribution: [
+      { name: 'North America', value: 45, risk: 'low' },
+      { name: 'Europe', value: 38, risk: 'medium' },
+      { name: 'Asia Pacific', value: 52, risk: 'high' },
+      { name: 'Latin America', value: 21, risk: 'medium' },
+    ],
+    networkNodes: [
+      {
+        id: '1',
+        name: 'TechCorp Manufacturing',
+        position: [0, 0, 0] as [number, number, number],
+        connections: ['2', '3'],
+        riskLevel: 'low' as const,
+        value: 2500000,
+        country: 'USA',
+        category: 'Electronics',
+      },
+      {
+        id: '2',
+        name: 'Global Auto Parts',
+        position: [5, 2, 3] as [number, number, number],
+        connections: ['1', '4'],
+        riskLevel: 'medium' as const,
+        value: 1800000,
+        country: 'Germany',
+        category: 'Automotive',
+      },
+      {
+        id: '3',
+        name: 'Asian Semiconductors',
+        position: [-3, 1, 5] as [number, number, number],
+        connections: ['1', '5'],
+        riskLevel: 'high' as const,
+        value: 3200000,
+        country: 'Taiwan',
+        category: 'Technology',
+      },
+      {
+        id: '4',
+        name: 'European Logistics',
+        position: [2, -2, -4] as [number, number, number],
+        connections: ['2'],
+        riskLevel: 'low' as const,
+        value: 950000,
+        country: 'Netherlands',
+        category: 'Logistics',
+      },
+      {
+        id: '5',
+        name: 'Critical Materials Ltd',
+        position: [-5, 3, -2] as [number, number, number],
+        connections: ['3'],
+        riskLevel: 'critical' as const,
+        value: 4100000,
+        country: 'China',
+        category: 'Raw Materials',
+      },
+    ],
+    performanceMetrics: [
+      { category: 'Delivery Performance', current: 94.8, target: 95.0, trend: 2.1 },
+      { category: 'Quality Score', current: 97.2, target: 98.0, trend: -0.8 },
+      { category: 'Cost Efficiency', current: 92.5, target: 90.0, trend: 4.2 },
+      { category: 'Risk Mitigation', current: 88.7, target: 85.0, trend: 6.3 },
+    ],
+    chartData3D: [
+      { x: 0, y: 0, z: 0, value: 245, label: 'Q1', category: 'Revenue' },
+      { x: 1, y: 0, z: 0, value: 289, label: 'Q2', category: 'Revenue' },
+      { x: 2, y: 0, z: 0, value: 312, label: 'Q3', category: 'Revenue' },
+      { x: 3, y: 0, z: 0, value: 387, label: 'Q4', category: 'Revenue' },
+      { x: 0, y: 1, z: 0, value: 156, label: 'Q1', category: 'Costs' },
+      { x: 1, y: 1, z: 0, value: 142, label: 'Q2', category: 'Costs' },
+      { x: 2, y: 1, z: 0, value: 168, label: 'Q3', category: 'Costs' },
+      { x: 3, y: 1, z: 0, value: 179, label: 'Q4', category: 'Costs' },
+    ],
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   // Simulated real-time data updates
@@ -64,21 +174,8 @@ export const ExecutiveDashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       
-      // Simulate API call with realistic delays
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setDashboardData({
-        supplyChainHealth: 87,
-        totalCostImpact: 2.4, // in millions
-        riskExposureIndex: 23,
-        onTimePerformance: 94.2,
-        supplierReliability: 91.8,
-        activeShipments: 2847,
-        totalSuppliers: 156,
-        highRiskAlerts: 7,
-        costSavings: 5.8, // in millions
-        budgetVariance: -2.1, // percentage
-      });
+      // Simulate API call with minimal delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       setLoading(false);
       setLastUpdated(new Date());
@@ -87,7 +184,9 @@ export const ExecutiveDashboard: React.FC = () => {
     fetchDashboardData();
     
     // Set up real-time updates every 30 seconds
-    const interval = setInterval(fetchDashboardData, 30000);
+    const interval = setInterval(() => {
+      setLastUpdated(new Date());
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -97,7 +196,7 @@ export const ExecutiveDashboard: React.FC = () => {
       setDashboardData(prev => ({
         ...prev,
         supplyChainHealth: Math.max(80, Math.min(95, prev.supplyChainHealth + (Math.random() - 0.5) * 4)),
-        onTimePerformance: Math.max(90, Math.min(98, prev.onTimePerformance + (Math.random() - 0.5) * 2)),
+        onTimeDeliveryRate: Math.max(90, Math.min(98, prev.onTimeDeliveryRate + (Math.random() - 0.5) * 2)),
         activeShipments: prev.activeShipments + Math.floor((Math.random() - 0.5) * 20),
       }));
       setLoading(false);
@@ -121,54 +220,6 @@ export const ExecutiveDashboard: React.FC = () => {
     },
   };
 
-  // Health score color logic
-  const getHealthScoreColor = (score: number) => {
-    if (score >= 90) return theme.palette.success.main;
-    if (score >= 75) return theme.palette.warning.main;
-    return theme.palette.error.main;
-  };
-
-  const timeRangeOptions = [
-    { value: '24h', label: '24 Hours' },
-    { value: '7d', label: '7 Days' },
-    { value: '30d', label: '30 Days' },
-    { value: '90d', label: '90 Days' },
-    { value: '1y', label: '1 Year' },
-  ];
-
-  // Sample data for charts - enhanced with real business context
-  const riskTrendsData = [
-    { date: '2024-01', risk: 65, compliance: 78, financial: 82 },
-    { date: '2024-02', risk: 59, compliance: 80, financial: 85 },
-    { date: '2024-03', risk: 62, compliance: 83, financial: 88 },
-    { date: '2024-04', risk: 58, compliance: 85, financial: 90 },
-    { date: '2024-05', risk: 55, compliance: 87, financial: 92 },
-    { date: '2024-06', risk: 52, compliance: 89, financial: 94 },
-  ];
-
-  const supplierDistributionData = [
-    { name: 'North America', value: 45, suppliers: 68 },
-    { name: 'Asia Pacific', value: 35, suppliers: 52 },
-    { name: 'Europe', value: 15, suppliers: 23 },
-    { name: 'Others', value: 5, suppliers: 7 },
-  ];
-
-  const shipmentVolumeData = [
-    { month: 'Jan', volume: 1250, value: 2.1 },
-    { month: 'Feb', volume: 1380, value: 2.3 },
-    { month: 'Mar', volume: 1520, value: 2.8 },
-    { month: 'Apr', volume: 1680, value: 3.1 },
-    { month: 'May', volume: 1850, value: 3.4 },
-    { month: 'Jun', volume: 1920, value: 3.6 },
-  ];
-
-  const performanceDataCharts = [
-    { metric: 'On-Time Delivery', current: 94.2, target: 95 },
-    { metric: 'Quality Score', current: 97.8, target: 98 },
-    { metric: 'Cost Efficiency', current: 89.5, target: 90 },
-    { metric: 'Risk Mitigation', current: 92.1, target: 93 },
-  ];
-
   return (
     <Box sx={{ 
       minHeight: '100vh',
@@ -181,117 +232,98 @@ export const ExecutiveDashboard: React.FC = () => {
         initial="hidden"
         animate="visible"
       >
-        <Box 
+        <GlassCard 
           sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', md: 'center' },
             mb: 4,
             p: 3,
-            background: 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: 3,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)',
           }}
         >
-          <motion.div variants={cardVariants}>
-            <Box>
-              <Typography 
-                variant="h3" 
-                component="h1" 
-                fontWeight={700}
-                sx={{
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 1,
-                }}
-              >
-                Executive Dashboard
-              </Typography>
-              <Typography 
-                variant="subtitle1" 
-                color="text.secondary"
-                sx={{ 
-                  opacity: 0.8,
-                  fontWeight: 500,
-                  letterSpacing: '0.025em',
-                }}
-              >
-                Real-time supply chain intelligence and performance metrics
-              </Typography>
-              <Box display="flex" alignItems="center" gap={1} mt={1}>
-                <Box 
-                  sx={{ 
-                    width: 8, 
-                    height: 8, 
-                    borderRadius: '50%', 
-                    backgroundColor: theme.palette.success.main,
-                    animation: 'pulse 2s infinite',
-                  }} 
-                />
-                <Typography variant="caption" color="text.secondary">
-                  Live • Last updated: {lastUpdated.toLocaleTimeString()}
-                </Typography>
-              </Box>
-            </Box>
-          </motion.div>
-          
-          <motion.div variants={cardVariants}>
-            <Box display="flex" alignItems="center" gap={2} mt={{ xs: 2, md: 0 }}>
-              {/* Time Range Selector */}
-              <Box display="flex" gap={1} flexWrap="wrap">
-                {timeRangeOptions.map((option, index) => (
-                  <motion.div
-                    key={option.value}
-                    variants={cardVariants}
-                    custom={index}
-                  >
-                    <Button
-                      variant="outlined"
-                      size="medium"
-                      sx={{
-                        borderRadius: 2.5,
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        minWidth: 'auto',
-                        px: 2.5,
-                        py: 1,
-                      }}
-                    >
-                      {option.label}
-                    </Button>
-                  </motion.div>
-                ))}
-              </Box>
-              
-              {/* Refresh Button */}
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                <IconButton 
-                  onClick={handleRefresh} 
-                  size="large"
+          <Box 
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+            }}
+          >
+            <motion.div variants={cardVariants}>
+              <Box>
+                <Typography 
+                  variant="h3" 
+                  component="h1" 
+                  fontWeight={700}
                   sx={{
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                    color: theme.palette.primary.main,
-                    '&:hover': {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                      transform: 'rotate(180deg)',
-                    },
-                    transition: 'all 0.3s ease',
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    mb: 1,
                   }}
                 >
-                  <Refresh />
-                </IconButton>
-              </motion.div>
-            </Box>
-          </motion.div>
-        </Box>
+                  Executive Dashboard
+                </Typography>
+                <Typography 
+                  variant="subtitle1" 
+                  color="text.secondary"
+                  sx={{ 
+                    opacity: 0.8,
+                    fontWeight: 500,
+                    letterSpacing: '0.025em',
+                  }}
+                >
+                  Real-time supply chain intelligence and performance metrics
+                </Typography>
+                <Box display="flex" alignItems="center" gap={1} mt={1}>
+                  <Box 
+                    sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      borderRadius: '50%', 
+                      backgroundColor: theme.palette.success.main,
+                      animation: 'pulse 2s infinite',
+                    }} 
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    Live • Last updated: {lastUpdated.toLocaleTimeString()}
+                  </Typography>
+                </Box>
+              </Box>
+            </motion.div>
+            
+            <motion.div variants={cardVariants}>
+              <Box display="flex" alignItems="center" gap={2} mt={{ xs: 2, md: 0 }}>
+                <EnhancedSearchBar 
+                  placeholder="Search metrics, suppliers, or shipments..."
+                  variant="glass"
+                  size="medium"
+                  showFilters={true}
+                />
+                
+                {/* Refresh Button */}
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                  <IconButton 
+                    onClick={handleRefresh} 
+                    size="large"
+                    sx={{
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                        transform: 'rotate(180deg)',
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <Refresh />
+                  </IconButton>
+                </motion.div>
+              </Box>
+            </motion.div>
+          </Box>
+        </GlassCard>
       </motion.div>
 
-      {/* C-Level KPI Overview Section */}
+      {/* Premium KPI Cards */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -316,142 +348,104 @@ export const ExecutiveDashboard: React.FC = () => {
               borderRadius: 2,
             }} 
           />
-          C-Level Executive Overview
+          Executive KPIs & Performance Metrics
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Supply Chain Health Score */}
-          <Grid item xs={12} md={4}>
-            <motion.div variants={cardVariants} whileHover="hover">
-              <Card sx={{ 
-                height: '100%', 
-                background: `linear-gradient(135deg, ${getHealthScoreColor(dashboardData.supplyChainHealth)}, ${alpha(getHealthScoreColor(dashboardData.supplyChainHealth), 0.8)})`,
-                color: 'white',
-                position: 'relative',
-                overflow: 'hidden',
-              }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}>
-                      <Shield />
-                    </Avatar>
-                    <Typography variant="h6" fontWeight={600}>
-                      Supply Chain Health
-                    </Typography>
-                  </Box>
-                  <Typography variant="h2" fontWeight={700} sx={{ mb: 1 }}>
-                    {loading ? '---' : dashboardData.supplyChainHealth}
-                    <Typography component="span" variant="h5">/100</Typography>
-                  </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={dashboardData.supplyChainHealth} 
-                    sx={{ 
-                      height: 8, 
-                      borderRadius: 4,
-                      backgroundColor: 'rgba(255,255,255,0.2)',
-                      '& .MuiLinearProgress-bar': {
-                        backgroundColor: 'white',
-                      }
-                    }} 
-                  />
-                  <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-                    Overall network performance score
-                  </Typography>
-                </CardContent>
-                <Box sx={{ 
-                  position: 'absolute', 
-                  top: 0, 
-                  right: 0, 
-                  width: 100, 
-                  height: 100, 
-                  opacity: 0.1,
-                  transform: 'translate(30px, -30px)',
-                }}>
-                  <Security sx={{ fontSize: 80 }} />
-                </Box>
-              </Card>
-            </motion.div>
+          {/* Supply Chain Health */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Supply Chain Health"
+              value={dashboardData.supplyChainHealth}
+              subtitle="Overall network performance score"
+              icon={<Shield />}
+              color="success"
+              variant="glass"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 5.2,
+                direction: 'up',
+                period: 'vs last month',
+              }}
+            />
           </Grid>
 
           {/* Total Cost Impact */}
-          <Grid item xs={12} md={4}>
-            <motion.div variants={cardVariants} whileHover="hover">
-              <Card sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <Avatar sx={{ bgcolor: theme.palette.error.light }}>
-                      <MonetizationOn />
-                    </Avatar>
-                    <Typography variant="h6" fontWeight={600}>
-                      Total Cost Impact
-                    </Typography>
-                  </Box>
-                  <Typography variant="h2" fontWeight={700} color="error.main" sx={{ mb: 1 }}>
-                    ${loading ? '-.--' : dashboardData.totalCostImpact.toFixed(1)}M
-                  </Typography>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Chip 
-                      label="Risk Exposure" 
-                      size="small" 
-                      color="error" 
-                      variant="outlined"
-                    />
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Potential financial exposure from identified risks
-                  </Typography>
-                </CardContent>
-              </Card>
-            </motion.div>
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Cost Impact"
+              value={`$${(dashboardData.totalCostImpact / 1000000).toFixed(1)}M`}
+              subtitle="Annual cost savings realized"
+              icon={<MonetizationOn />}
+              color="primary"
+              variant="glass"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 12.3,
+                direction: 'up',
+                period: 'YoY growth',
+              }}
+            />
           </Grid>
 
-          {/* On-Time Performance */}
-          <Grid item xs={12} md={4}>
-            <motion.div variants={cardVariants} whileHover="hover">
-              <Card sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <Avatar sx={{ bgcolor: theme.palette.success.light }}>
-                      <CheckCircle />
-                    </Avatar>
-                    <Typography variant="h6" fontWeight={600}>
-                      On-Time Performance
-                    </Typography>
-                  </Box>
-                  <Typography variant="h2" fontWeight={700} color="success.main" sx={{ mb: 1 }}>
-                    {loading ? '--.-' : dashboardData.onTimePerformance.toFixed(1)}%
-                  </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={dashboardData.onTimePerformance} 
-                    sx={{ 
-                      height: 8, 
-                      borderRadius: 4,
-                      backgroundColor: alpha(theme.palette.success.main, 0.1),
-                      '& .MuiLinearProgress-bar': {
-                        backgroundColor: theme.palette.success.main,
-                      }
-                    }} 
-                  />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Delivery performance vs. committed dates
-                  </Typography>
-                </CardContent>
-              </Card>
-            </motion.div>
+          {/* Risk Exposure Index */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Risk Exposure"
+              value={dashboardData.riskExposureIndex}
+              subtitle="Overall supply chain risk level"
+              icon={<Warning />}
+              color="warning"
+              variant="glass"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 8.7,
+                direction: 'down',
+                period: 'risk reduction',
+              }}
+            />
+          </Grid>
+
+          {/* Active Shipments */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Active Shipments"
+              value={dashboardData.activeShipments.toLocaleString()}
+              subtitle="Currently in transit"
+              icon={<LocalShipping />}
+              color="info"
+              variant="glass"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 15.4,
+                direction: 'up',
+                period: 'volume increase',
+              }}
+            />
           </Grid>
         </Grid>
       </motion.div>
 
-      {/* Operational Metrics Grid */}
+      {/* Advanced Charts Section */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
       >
         <Typography 
-          variant="h5" 
+          variant="h4" 
           fontWeight={600}
           sx={{ 
             mb: 3,
@@ -464,203 +458,148 @@ export const ExecutiveDashboard: React.FC = () => {
           <Box 
             sx={{ 
               width: 4, 
-              height: 24, 
+              height: 28, 
               backgroundColor: theme.palette.secondary.main, 
-              borderRadius: 2,
-            }} 
-          />
-          Operational Intelligence
-        </Typography>
-
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {[
-            {
-              title: "Active Shipments",
-              value: dashboardData.activeShipments.toLocaleString(),
-              subtitle: "Currently in transit",
-              trend: { value: 12.3, direction: 'up' as const, period: 'vs last week', label: 'increase' },
-              icon: <LocalShipping />,
-              colorScheme: 'primary' as const,
-            },
-            {
-              title: "Total Suppliers",
-              value: dashboardData.totalSuppliers.toLocaleString(),
-              subtitle: "Active network partners",
-              trend: { value: 5.2, direction: 'up' as const, period: 'vs last month', label: 'growth' },
-              icon: <Business />,
-              colorScheme: 'success' as const,
-            },
-            {
-              title: "High Risk Alerts",
-              value: dashboardData.highRiskAlerts,
-              subtitle: "Requiring immediate attention",
-              trend: { value: 8.1, direction: 'down' as const, period: 'vs last week', label: 'improvement' },
-              icon: <ErrorOutline />,
-              colorScheme: dashboardData.highRiskAlerts > 10 ? 'error' as const : 'warning' as const,
-            },
-            {
-              title: "Supplier Reliability",
-              value: `${dashboardData.supplierReliability.toFixed(1)}%`,
-              subtitle: "Average performance score",
-              trend: { value: 2.1, direction: 'up' as const, period: 'vs target', label: 'improvement' },
-              icon: <Assessment />,
-              colorScheme: 'accent' as const,
-            },
-          ].map((metric) => (
-            <Grid item xs={12} sm={6} lg={3} key={metric.title}>
-              <motion.div variants={cardVariants} whileHover="hover">
-                <MetricCard
-                  {...metric}
-                  variant="premium"
-                  size="medium"
-                  loading={loading}
-                />
-              </motion.div>
-            </Grid>
-          ))}
-        </Grid>
-      </motion.div>
-
-      {/* Advanced Analytics Section */}
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
-        <Typography 
-          variant="h5" 
-          fontWeight={600}
-          sx={{ 
-            mb: 3,
-            color: theme.palette.text.primary,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-          }}
-        >
-          <Box 
-            sx={{ 
-              width: 4, 
-              height: 24, 
-              backgroundColor: theme.palette.warning.main, 
               borderRadius: 2,
             }} 
           />
           Advanced Analytics & Insights
         </Typography>
 
-        <Grid container spacing={3}>
-          {/* Risk Trends */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {/* Risk Trends Chart */}
           <Grid item xs={12} lg={8}>
-            <motion.div variants={cardVariants}>
-              <Box
-                sx={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  overflow: 'hidden',
-                  height: '100%',
-                }}
-              >
-                <EnhancedLineChart
-                  title="Risk Trends Over Time"
-                  data={riskTrendsData}
-                  height={350}
-                  xKey="date"
-                  yKeys={['risk', 'compliance', 'financial']}
-                  colors={[theme.palette.error.main, theme.palette.warning.main, theme.palette.success.main]}
-                  loading={loading}
-                />
-              </Box>
-            </motion.div>
+            <PremiumLineChart
+              data={dashboardData.riskTrends}
+              title="Risk Trends Analysis"
+              subtitle="Multi-dimensional risk assessment over time"
+              height={350}
+              xKey="date"
+              yKeys={['high', 'medium', 'low']}
+              loading={loading}
+              variant="premium"
+              animation={true}
+              curved={true}
+              dots={true}
+              showLegend={true}
+              colors={[theme.palette.error.main, theme.palette.warning.main, theme.palette.success.main]}
+            />
           </Grid>
-          
-          {/* Supplier Distribution */}
+
+          {/* Performance Ring Chart */}
           <Grid item xs={12} lg={4}>
-            <motion.div variants={cardVariants}>
-              <Box
-                sx={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  overflow: 'hidden',
-                  height: '100%',
-                }}
-              >
-                <EnhancedPieChart
-                  title="Supplier Distribution by Region"
-                  data={supplierDistributionData}
-                  height={350}
-                  dataKey="value"
-                  nameKey="name"
-                  colors={[
-                    theme.palette.primary.main,
-                    theme.palette.secondary.main,
-                    theme.palette.info.main,
-                    theme.palette.warning.main,
-                  ]}
-                  loading={loading}
+            <GlassCard sx={{ height: 350 + 80, p: 3 }}>
+              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                Delivery Performance
+              </Typography>
+              <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 250 }}>
+                <ProgressRing
+                  value={dashboardData.onTimeDeliveryRate}
+                  max={100}
+                  size={200}
+                  strokeWidth={12}
+                  showValue={true}
+                  animated={true}
+                  gradient={true}
                 />
               </Box>
-            </motion.div>
+              <Typography variant="body2" color="text.secondary" align="center">
+                On-time delivery rate with 95% target
+              </Typography>
+            </GlassCard>
           </Grid>
-          
-          {/* Shipment Volume */}
+
+          {/* 3D Bar Chart - Temporarily Disabled */}
           <Grid item xs={12} lg={6}>
-            <motion.div variants={cardVariants}>
-              <Box
-                sx={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  overflow: 'hidden',
-                  height: '100%',
-                }}
-              >
-                <EnhancedAreaChart
-                  title="Shipment Volume & Value Trends"
-                  data={shipmentVolumeData}
-                  height={300}
-                  xKey="month"
-                  yKey="volume"
-                  colors={[theme.palette.primary.main]}
-                  gradient
-                  loading={loading}
-                />
-              </Box>
-            </motion.div>
+            <GlassCard sx={{ height: 400, p: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="h6" color="text.secondary">
+                3D Visualization Coming Soon
+              </Typography>
+            </GlassCard>
           </Grid>
-          
-          {/* Performance Metrics */}
+
+          {/* Financial Impact Area Chart */}
           <Grid item xs={12} lg={6}>
-            <motion.div variants={cardVariants}>
-              <Box
-                sx={{
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: 3,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  overflow: 'hidden',
-                  height: '100%',
-                }}
-              >
-                <EnhancedBarChart
-                  title="Performance vs Targets"
-                  data={performanceDataCharts}
-                  height={300}
-                  xKey="metric"
-                  yKey="current"
-                  colors={[theme.palette.success.main]}
-                  loading={loading}
-                />
-              </Box>
-            </motion.div>
+            <PremiumAreaChart
+              data={dashboardData.financialImpact}
+              title="Financial Impact Analysis"
+              subtitle="Cost savings and operational expenses"
+              height={400}
+              xKey="month"
+              yKey="savings"
+              loading={loading}
+              variant="premium"
+              gradient={true}
+              strokeWidth={3}
+              fillOpacity={0.2}
+              animation={true}
+            />
+          </Grid>
+
+          {/* Supplier Distribution Pie Chart */}
+          <Grid item xs={12} lg={6}>
+            <PremiumPieChart
+              data={dashboardData.supplierDistribution}
+              title="Global Supplier Distribution"
+              subtitle="Regional breakdown with risk assessment"
+              height={400}
+              dataKey="value"
+              nameKey="name"
+              loading={loading}
+              variant="premium"
+              donut={true}
+              gradient3D={true}
+              showLabels={true}
+              colors={[
+                theme.palette.primary.main,
+                theme.palette.secondary.main,
+                theme.palette.success.main,
+                theme.palette.warning.main,
+              ]}
+            />
+          </Grid>
+
+          {/* 3D Network Visualization - Temporarily Disabled */}
+          <Grid item xs={12} lg={6}>
+            <GlassCard sx={{ height: 400, p: 3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="h6" color="text.secondary">
+                3D Network Visualization Coming Soon
+              </Typography>
+            </GlassCard>
+          </Grid>
+
+          {/* Performance Metrics Bar Chart */}
+          <Grid item xs={12}>
+            <PremiumBarChart
+              data={dashboardData.performanceMetrics.map(metric => ({
+                category: metric.category,
+                current: metric.current,
+                target: metric.target,
+              }))}
+              title="Performance vs Targets"
+              subtitle="Key performance indicators against established targets"
+              height={300}
+              xKey="category"
+              yKey="current"
+              loading={loading}
+              variant="premium"
+              horizontal={false}
+              rounded={true}
+              gradient={true}
+              animation={true}
+            />
           </Grid>
         </Grid>
       </motion.div>
+
+      {/* Floating Action Button */}
+      <EnhancedFloatingActionButton
+        icon={<Analytics />}
+        onClick={() => console.log('Advanced analytics clicked')}
+        tooltip="Advanced Analytics"
+        color="primary"
+        size="medium"
+      />
     </Box>
   );
 };
