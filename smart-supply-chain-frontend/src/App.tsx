@@ -21,6 +21,7 @@ import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierM
 import ShipmentDashboard from './components/shipments/ShipmentDashboard';
 import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
 import NotificationCenter from './components/notifications/NotificationCenter';
+import UserManagement from './components/admin/UserManagement';
 
 // Enhanced Query Client with performance optimizations
 const queryClient = new QueryClient({
@@ -219,6 +220,13 @@ function App() {
                     <Route path="/shipments/tracking/:trackingNumber" element={
                       <ProtectedRoute>
                         <ShipmentTrackingWrapper />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* User Management Routes */}
+                    <Route path="/admin/users" element={
+                      <ProtectedRoute>
+                        <UserManagement />
                       </ProtectedRoute>
                     } />
                     
