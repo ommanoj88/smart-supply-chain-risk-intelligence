@@ -55,6 +55,18 @@ export const ExecutiveDashboard: React.FC = () => {
     averageRiskScore: 2.4,
     monthlyGrowth: 8.5,
     criticalAlerts: 12,
+    // Enhanced Executive KPIs
+    budgetVariance: -3.2,
+    roi: 18.7,
+    qualityScore: 97.2,
+    complianceRate: 99.1,
+    capacityUtilization: 85.6,
+    highRiskSuppliers: 8,
+    mitigationEffectiveness: 92.4,
+    supplierReliabilityScore: 89.3,
+    costSavingsYTD: 3200000,
+    predictedDelay: 5.2,
+    demandForecastAccuracy: 94.1,
     riskTrends: [
       { date: 'Jan', high: 15, medium: 45, low: 89 },
       { date: 'Feb', high: 12, medium: 38, low: 95 },
@@ -331,12 +343,13 @@ export const ExecutiveDashboard: React.FC = () => {
           Executive KPIs & Performance Metrics
         </Typography>
 
+        {/* Primary KPI Cards Row */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Supply Chain Health */}
           <Grid item xs={12} md={3}>
             <PremiumKPICard
               title="Supply Chain Health"
-              value={dashboardData.supplyChainHealth}
+              value={`${dashboardData.supplyChainHealth.toFixed(1)}%`}
               subtitle="Overall network performance score"
               icon={<Shield />}
               color="success"
@@ -353,12 +366,12 @@ export const ExecutiveDashboard: React.FC = () => {
             />
           </Grid>
 
-          {/* Total Cost Impact */}
+          {/* Financial Impact */}
           <Grid item xs={12} md={3}>
             <PremiumKPICard
-              title="Cost Impact"
-              value={`$${(dashboardData.totalCostImpact / 1000000).toFixed(1)}M`}
-              subtitle="Annual cost savings realized"
+              title="Cost Savings YTD"
+              value={`$${(dashboardData.costSavingsYTD / 1000000).toFixed(1)}M`}
+              subtitle="Year-to-date cost optimization"
               icon={<MonetizationOn />}
               color="primary"
               variant="glass"
@@ -367,9 +380,9 @@ export const ExecutiveDashboard: React.FC = () => {
               animated={true}
               interactive={true}
               trend={{
-                value: 12.3,
+                value: 18.7,
                 direction: 'up',
-                period: 'YoY growth',
+                period: 'ROI this quarter',
               }}
             />
           </Grid>
@@ -378,7 +391,7 @@ export const ExecutiveDashboard: React.FC = () => {
           <Grid item xs={12} md={3}>
             <PremiumKPICard
               title="Risk Exposure"
-              value={dashboardData.riskExposureIndex}
+              value={`${dashboardData.riskExposureIndex.toFixed(1)}%`}
               subtitle="Overall supply chain risk level"
               icon={<Warning />}
               color="warning"
@@ -412,6 +425,182 @@ export const ExecutiveDashboard: React.FC = () => {
                 value: 15.4,
                 direction: 'up',
                 period: 'volume increase',
+              }}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Secondary KPI Cards Row - Operational Performance */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {/* On-Time Delivery */}
+          <Grid item xs={12} md={4}>
+            <PremiumKPICard
+              title="On-Time Delivery"
+              value={`${dashboardData.onTimeDeliveryRate.toFixed(1)}%`}
+              subtitle="Target: 95.0% | Quality score: 97.2%"
+              icon={<Analytics />}
+              color="success"
+              variant="gradient"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: dashboardData.qualityScore,
+                direction: 'up',
+                period: 'quality score',
+              }}
+            />
+          </Grid>
+
+          {/* Compliance Rate */}
+          <Grid item xs={12} md={4}>
+            <PremiumKPICard
+              title="Compliance Rate"
+              value={`${dashboardData.complianceRate.toFixed(1)}%`}
+              subtitle="Regulatory & policy adherence"
+              icon={<Shield />}
+              color="primary"
+              variant="gradient"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 2.1,
+                direction: 'up',
+                period: 'improvement',
+              }}
+            />
+          </Grid>
+
+          {/* Supplier Reliability */}
+          <Grid item xs={12} md={4}>
+            <PremiumKPICard
+              title="Supplier Reliability"
+              value={`${dashboardData.supplierReliabilityScore.toFixed(1)}%`}
+              subtitle={`${dashboardData.highRiskSuppliers} high-risk suppliers`}
+              icon={<Warning />}
+              color="warning"
+              variant="gradient"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: dashboardData.mitigationEffectiveness,
+                direction: 'up',
+                period: 'mitigation effectiveness',
+              }}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Financial & Predictive Analytics Section */}
+        <Typography 
+          variant="h5" 
+          fontWeight={600}
+          sx={{ 
+            mb: 3,
+            mt: 2,
+            color: theme.palette.text.primary,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
+          <Box 
+            sx={{ 
+              width: 4, 
+              height: 24, 
+              backgroundColor: theme.palette.warning.main, 
+              borderRadius: 2,
+            }} 
+          />
+          Financial Impact & Predictive Analytics
+        </Typography>
+
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {/* Budget Variance */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Budget Variance"
+              value={`${dashboardData.budgetVariance >= 0 ? '+' : ''}${dashboardData.budgetVariance.toFixed(1)}%`}
+              subtitle="Against planned budget"
+              icon={<MonetizationOn />}
+              color={dashboardData.budgetVariance >= 0 ? "success" : "error"}
+              variant="solid"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: Math.abs(dashboardData.budgetVariance),
+                direction: dashboardData.budgetVariance >= 0 ? 'up' : 'down',
+                period: 'vs budget',
+              }}
+            />
+          </Grid>
+
+          {/* Capacity Utilization */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Capacity Utilization"
+              value={`${dashboardData.capacityUtilization.toFixed(1)}%`}
+              subtitle="Optimal range: 80-90%"
+              icon={<Analytics />}
+              color="info"
+              variant="solid"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 4.2,
+                direction: 'up',
+                period: 'efficiency gain',
+              }}
+            />
+          </Grid>
+
+          {/* Predicted Delays */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Predicted Delays"
+              value={`${dashboardData.predictedDelay.toFixed(1)}%`}
+              subtitle="AI-powered forecast"
+              icon={<Warning />}
+              color="warning"
+              variant="solid"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 12.3,
+                direction: 'down',
+                period: 'improvement',
+              }}
+            />
+          </Grid>
+
+          {/* Demand Forecast Accuracy */}
+          <Grid item xs={12} md={3}>
+            <PremiumKPICard
+              title="Forecast Accuracy"
+              value={`${dashboardData.demandForecastAccuracy.toFixed(1)}%`}
+              subtitle="Demand prediction precision"
+              icon={<Analytics />}
+              color="success"
+              variant="solid"
+              size="medium"
+              loading={loading}
+              animated={true}
+              interactive={true}
+              trend={{
+                value: 2.8,
+                direction: 'up',
+                period: 'precision gain',
               }}
             />
           </Grid>
