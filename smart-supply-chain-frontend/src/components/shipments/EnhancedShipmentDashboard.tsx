@@ -32,51 +32,15 @@ import {
 } from '../ui/PremiumComponents';
 
 
-// Enhanced Shipment Interface
-interface Shipment {
-  id: string;
-  trackingNumber: string;
-  supplier: string;
-  carrier: string;
-  status: 'IN_TRANSIT' | 'DELIVERED' | 'EXCEPTION' | 'DELAYED' | 'CUSTOMS';
-  origin: {
-    city: string;
-    country: string;
-    coordinates: [number, number];
-  };
-  destination: {
-    city: string;
-    country: string;
-    coordinates: [number, number];
-  };
-  estimatedDelivery: Date;
-  actualDelivery?: Date;
-  value: number;
-  riskScore: number;
-  transportMode: 'air' | 'sea' | 'land' | 'multimodal';
-  milestones: ShipmentMilestone[];
-  currentLocation?: {
-    city: string;
-    coordinates: [number, number];
-    timestamp: Date;
-  };
-  temperature?: number;
-  humidity?: number;
-  predictedArrival: {
-    date: Date;
-    confidence: number;
-  };
-}
-
-interface ShipmentMilestone {
-  id: string;
-  title: string;
-  description: string;
-  timestamp: Date;
-  location: string;
-  status: 'completed' | 'current' | 'pending' | 'delayed';
-  icon: string;
-}
+// Enhanced Shipment Interface (for future implementation)
+// interface Shipment {
+//   id: string;
+//   trackingNumber: string;
+//   supplier: string;
+//   carrier: string;
+//   status: 'IN_TRANSIT' | 'DELIVERED' | 'EXCEPTION' | 'DELAYED' | 'CUSTOMS';
+//   // ... other properties
+// }
 
 interface ShipmentMetrics {
   totalShipments: number;
@@ -107,7 +71,7 @@ export const EnhancedShipmentDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Static metrics for demonstration
-  const metrics: ShipmentMetrics = {
+  const metrics = useMemo((): ShipmentMetrics => ({
     totalShipments: 1547,
     inTransit: 423,
     delivered: 1098,
@@ -117,7 +81,7 @@ export const EnhancedShipmentDashboard: React.FC = () => {
     averageTransitTime: 7.2,
     costEfficiency: 94.8,
     customerSatisfaction: 4.7,
-  };
+  }), []);
 
   // Mock data generation - removed for now
   // useEffect(() => {
@@ -349,7 +313,7 @@ export const EnhancedShipmentDashboard: React.FC = () => {
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {enhancedMetrics.map((metric, index) => (
+          {enhancedMetrics.map((metric) => (
             <Grid item xs={12} sm={6} lg={2} key={metric.title}>
               <motion.div variants={cardVariants}>
                 <PremiumKPICard

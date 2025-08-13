@@ -185,6 +185,11 @@ function App() {
                       </ProtectedRoute>
                     } />
                     
+                    {/* Demo Routes (for showcasing) */}
+                    <Route path="/demo/executive" element={<ExecutiveDashboard />} />
+                    <Route path="/demo/shipments" element={<EnhancedShipmentDashboard />} />
+                    <Route path="/demo/suppliers" element={<EnhancedSupplierDashboard />} />
+                    
                     <Route path="/dashboard/analytics" element={
                       <ProtectedRoute>
                         <AnalyticsDashboard />

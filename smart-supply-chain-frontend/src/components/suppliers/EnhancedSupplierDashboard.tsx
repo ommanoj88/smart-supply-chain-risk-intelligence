@@ -3,7 +3,6 @@ import {
   Box,
   Grid,
   Typography,
-  Card,
   CardContent,
   CardActions,
   IconButton,
@@ -11,7 +10,6 @@ import {
   Button,
   Avatar,
   LinearProgress,
-  Tooltip,
   useTheme,
   alpha,
 } from '@mui/material';
@@ -21,24 +19,21 @@ import {
   Phone,
   TrendingUp,
   Warning,
-  CheckCircle,
   Star,
   Security,
-  LocalShipping,
   Analytics,
   MoreVert,
   Visibility,
   Assessment,
   Add,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   PremiumKPICard,
   GlassCard,
   EnhancedSearchBar,
-  ProgressRing,
 } from '../ui/PremiumComponents';
-import { PremiumBarChart, PremiumLineChart } from '../common/PremiumCharts';
+
 
 // Enhanced Supplier Interface
 interface Supplier {
@@ -123,7 +118,7 @@ interface SupplierMetrics {
 export const EnhancedSupplierDashboard: React.FC = () => {
   const theme = useTheme();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [metrics, setMetrics] = useState<SupplierMetrics>({
+  const [metrics] = useState<SupplierMetrics>({
     totalSuppliers: 287,
     activeSuppliers: 234,
     strategicPartners: 45,
@@ -134,18 +129,9 @@ export const EnhancedSupplierDashboard: React.FC = () => {
     sustainabilityScore: 82.1,
     diversityIndex: 0.73,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'list' | 'analytics'>('cards');
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    tier: '',
-    status: '',
-    riskLevel: '',
-    region: '',
-    industry: '',
-    performance: '',
-  });
 
   // Mock data generation
   useEffect(() => {
@@ -694,7 +680,7 @@ export const EnhancedSupplierDashboard: React.FC = () => {
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {enhancedMetrics.map((metric, index) => (
+          {enhancedMetrics.map((metric) => (
             <Grid item xs={12} sm={6} lg={2} key={metric.title}>
               <motion.div variants={cardVariants}>
                 <PremiumKPICard
