@@ -16,9 +16,9 @@ import Profile from './components/Auth/Profile';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import ExecutiveDashboard from './components/dashboard/ExecutiveDashboard';
 import AnalyticsDashboard from './components/dashboard/AnalyticsDashboard';
-import SupplierDashboard from './components/suppliers/SupplierDashboard';
+import EnhancedSupplierDashboard from './components/suppliers/EnhancedSupplierDashboard';
 import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierManagement';
-import ShipmentDashboard from './components/shipments/ShipmentDashboard';
+import EnhancedShipmentDashboard from './components/shipments/EnhancedShipmentDashboard';
 import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
 import NotificationCenter from './components/notifications/NotificationCenter';
 import UserManagement from './components/admin/UserManagement';
@@ -194,7 +194,7 @@ function App() {
                     {/* Supplier Routes */}
                     <Route path="/suppliers" element={
                       <ProtectedRoute>
-                        <SupplierDashboard />
+                        <EnhancedSupplierDashboard />
                       </ProtectedRoute>
                     } />
                     
@@ -207,13 +207,13 @@ function App() {
                     {/* Shipment Routes */}
                     <Route path="/shipments" element={
                       <ProtectedRoute>
-                        <ShipmentDashboard />
+                        <EnhancedShipmentDashboard />
                       </ProtectedRoute>
                     } />
                     
                     <Route path="/shipments/tracking" element={
                       <ProtectedRoute>
-                        <ShipmentDashboard />
+                        <EnhancedShipmentDashboard />
                       </ProtectedRoute>
                     } />
                     
