@@ -102,13 +102,22 @@ const Header = () => {
                 </Button>
               )}
               {user?.role === 'ADMIN' && (
-                <Button 
-                  color="inherit" 
-                  onClick={() => navigate('/admin')}
-                  sx={{ textTransform: 'none' }}
-                >
-                  Admin
-                </Button>
+                <>
+                  <Button 
+                    color="inherit" 
+                    onClick={() => navigate('/admin')}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Admin
+                  </Button>
+                  <Button 
+                    color="inherit" 
+                    onClick={() => navigate('/admin/testing')}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Testing Environment
+                  </Button>
+                </>
               )}
             </Box>
 
