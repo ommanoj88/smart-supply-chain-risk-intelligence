@@ -67,7 +67,7 @@ public class AdminController {
         }
     }
     
-    // Enterprise Testing Environment Endpoints
+    // ===== Enterprise Testing Environment Endpoints =====
     
     @PostMapping("/testing/generate-scenario")
     @PreAuthorize("hasRole('ADMIN')")
@@ -171,7 +171,52 @@ public class AdminController {
         }
     }
     
-    // Enhanced Mock Data Generation Endpoints
+    @PostMapping("/testing/generate-mock-data")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateMockData(@RequestBody Map<String, Object> dataConfig) {
+        try {
+            String dataType = (String) dataConfig.get("dataType");
+            logger.info("Generating mock data for type: {}", dataType);
+            
+            Map<String, Object> result = enterpriseTestingService.generateMockData(dataConfig);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", result,
+                "message", "Mock data generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Mock data generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Mock data generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/testing/clear-mock-data")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> clearMockData() {
+        try {
+            logger.info("Clearing mock data...");
+            enterpriseTestingService.clearMockData();
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Mock data cleared successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Clear mock data failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Clear mock data failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    // ===== Enhanced Mock Data Generation Endpoints (PR #3) =====
     
     @PostMapping("/mock-data/crisis-scenario")
     @PreAuthorize("hasRole('ADMIN')")
@@ -305,14 +350,10 @@ public class AdminController {
         }
     }
     
-    // Helper method for complex shipment scenarios
+    // ===== Helper Methods for Complex Scenarios =====
+    
     private Map<String, Object> generateComplexShipmentData(Map<String, Object> request) {
         String scenarioType = (String) request.get("scenarioType");
-        
-        Map<String, Object> scenario = Map.of(
-            "scenarioType", scenarioType,
-            "generatedAt", java.time.LocalDateTime.now()
-        );
         
         return switch (scenarioType) {
             case "MULTI_MODAL_TRANSPORT" -> generateMultiModalTransportScenario();
@@ -325,40 +366,48 @@ public class AdminController {
     
     private Map<String, Object> generateMultiModalTransportScenario() {
         return Map.of(
+            "scenarioType", "MULTI_MODAL_TRANSPORT",
             "transportModes", new String[]{"OCEAN", "RAIL", "TRUCK"},
             "intermodalDelays", "2-4 hours at each transfer point",
             "costOptimization", "15% savings vs air freight",
             "timeTradeoff", "+5 days vs direct air transport",
-            "transferPoints", new String[]{"Port of Long Beach", "Chicago Rail Hub", "Final Mile Truck"}
+            "transferPoints", new String[]{"Port of Long Beach", "Chicago Rail Hub", "Final Mile Truck"},
+            "generatedAt", java.time.LocalDateTime.now()
         );
     }
     
     private Map<String, Object> generateCustomsDelayScenario() {
         return Map.of(
+            "scenarioType", "CUSTOMS_DELAYS",
             "averageDelayHours", 24,
             "documentationIssues", "Missing commercial invoice details",
             "dutyChanges", "+12% unexpected tariff adjustment",
             "inspectionRate", "25% physical inspection rate",
-            "borderCongestion", "HIGH - 48 hour queue at border"
+            "borderCongestion", "HIGH - 48 hour queue at border",
+            "generatedAt", java.time.LocalDateTime.now()
         );
     }
     
     private Map<String, Object> generatePortCongestionScenario() {
         return Map.of(
+            "scenarioType", "PORT_CONGESTION",
             "affectedPorts", new String[]{"Los Angeles", "Long Beach", "Rotterdam", "Singapore"},
             "vesselWaitingTime", "5-8 days average",
             "containerShortage", "CRITICAL - 40% shortage",
             "alternativePorts", new String[]{"Oakland", "Seattle", "Hamburg"},
-            "costIncrease", "25-40% premium for expedited handling"
+            "costIncrease", "25-40% premium for expedited handling",
+            "generatedAt", java.time.LocalDateTime.now()
         );
     }
     
     private Map<String, Object> generateRouteOptimizationScenario() {
         return Map.of(
+            "scenarioType", "ROUTE_OPTIMIZATION",
             "emergencyRerouting", "Suez Canal blockage - Panama alternative",
             "costOptimization", "Northern route saves 15% on fuel",
             "timeOptimization", "Air freight reduces time by 12 days",
-            "riskMitigation", "Avoiding high-piracy areas adds 2 days but reduces insurance cost"
+            "riskMitigation", "Avoiding high-piracy areas adds 2 days but reduces insurance cost",
+            "generatedAt", java.time.LocalDateTime.now()
         );
     }
 }
