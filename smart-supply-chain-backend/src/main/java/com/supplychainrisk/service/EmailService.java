@@ -1,7 +1,9 @@
 package com.supplychainrisk.service;
 
+import com.supplychainrisk.service.AdvancedNotificationService.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,115 @@ public class EmailService {
     
     @Value("${app.name:Smart Supply Chain Risk Intelligence}")
     private String appName;
+    
+    @Autowired(required = false)
+    private NotificationTemplateService templateService;
+    
+    @Value("${notification.email.provider:smtp}")
+    private String emailProvider;
+    
+    @Value("${notification.email.from.address:noreply@supplychainrisk.com}")
+    private String fromAddress;
+    
+    @Value("${notification.email.from.name:Supply Chain Risk Intelligence}")
+    private String fromName;
+    
+    // Enhanced method for advanced notifications
+    public String sendEmail(EmailMessage message) {
+        try {
+            // Process template if specified
+            if (message.getTemplateId() != null && templateService != null) {
+                processTemplate(message);
+            }
+            
+            // Validate email content
+            validateEmailMessage(message);
+            
+            // Send via configured provider
+            switch (emailProvider.toLowerCase()) {
+                case "ses":
+                    return sendViaSES(message);
+                case "sendgrid":
+                    return sendViaSendGrid(message);
+                case "smtp":
+                    return sendViaSMTP(message);
+                default:
+                    return sendViaSMTP(message); // Default to SMTP
+            }
+            
+        } catch (Exception e) {
+            logger.error("Failed to send email: {}", message.getSubject(), e);
+            throw new EmailException("Email sending failed", e);
+        }
+    }
+    
+    private String sendViaSES(EmailMessage message) {
+        try {
+            // AWS SES implementation would go here
+            // For now, simulate sending
+            logger.info("Simulating SES email send to: {} with subject: {}", message.getTo(), message.getSubject());
+            return "ses-message-id-" + System.currentTimeMillis();
+            
+        } catch (Exception e) {
+            logger.error("SES email sending failed", e);
+            throw new EmailException("SES email sending failed", e);
+        }
+    }
+    
+    private String sendViaSendGrid(EmailMessage message) {
+        try {
+            // SendGrid implementation would go here
+            // For now, simulate sending
+            logger.info("Simulating SendGrid email send to: {} with subject: {}", message.getTo(), message.getSubject());
+            return "sendgrid-message-id-" + System.currentTimeMillis();
+            
+        } catch (Exception e) {
+            logger.error("SendGrid email sending failed", e);
+            throw new EmailException("SendGrid email sending failed", e);
+        }
+    }
+    
+    private String sendViaSMTP(EmailMessage message) {
+        try {
+            // SMTP implementation would go here
+            // For now, simulate sending
+            logger.info("Simulating SMTP email send to: {} with subject: {}", message.getTo(), message.getSubject());
+            return "smtp-message-id-" + System.currentTimeMillis();
+            
+        } catch (Exception e) {
+            logger.error("SMTP email sending failed", e);
+            throw new EmailException("SMTP email sending failed", e);
+        }
+    }
+    
+    private void processTemplate(EmailMessage message) {
+        if (templateService != null) {
+            // Template processing would be implemented here
+            logger.info("Processing email template: {}", message.getTemplateId());
+        }
+    }
+    
+    private void validateEmailMessage(EmailMessage message) {
+        if (message.getTo() == null || message.getTo().trim().isEmpty()) {
+            throw new EmailException("Recipient email address is required");
+        }
+        
+        if (message.getSubject() == null || message.getSubject().trim().isEmpty()) {
+            throw new EmailException("Email subject is required");
+        }
+        
+        if ((message.getHtmlContent() == null || message.getHtmlContent().trim().isEmpty()) &&
+            (message.getTextContent() == null || message.getTextContent().trim().isEmpty())) {
+            throw new EmailException("Email content (HTML or text) is required");
+        }
+    }
+    
+    private String formatEmailAddress(String email, String name) {
+        if (name != null && !name.trim().isEmpty()) {
+            return String.format("%s <%s>", name, email);
+        }
+        return email;
+    }
     
     public void sendPasswordResetEmail(String email, String name, String resetToken) {
         try {
@@ -107,6 +218,17 @@ public class EmailService {
         } catch (Exception e) {
             logger.error("Failed to send email verification email to {}: {}", email, e.getMessage());
             throw new RuntimeException("Failed to send email verification email", e);
+        }
+    }
+    
+    // Exception class
+    public static class EmailException extends RuntimeException {
+        public EmailException(String message) {
+            super(message);
+        }
+        
+        public EmailException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }
