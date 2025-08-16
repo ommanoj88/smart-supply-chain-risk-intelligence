@@ -350,7 +350,8 @@ public class ExecutiveKPIService {
     private List<Shipment> getRecentShipments(int days) {
         try {
             LocalDateTime since = LocalDateTime.now().minusDays(days);
-            return shipmentRepository.findByCreatedAtAfter(since);
+            LocalDateTime now = LocalDateTime.now();
+            return shipmentRepository.findByEstimatedDeliveryDateBetween(since, now);
         } catch (Exception e) {
             logger.error("Error getting recent shipments: {}", e.getMessage(), e);
             return Collections.emptyList();
@@ -367,9 +368,12 @@ public class ExecutiveKPIService {
     
     private long getActiveShipmentsCount() {
         try {
-            return shipmentRepository.countByStatusIn(
-                Arrays.asList("IN_TRANSIT", "PICKED_UP", "OUT_FOR_DELIVERY")
-            );
+            // Count shipments that are currently active (in transit, picked up, out for delivery)
+            long inTransit = shipmentRepository.countByStatus(Shipment.ShipmentStatus.IN_TRANSIT);
+            long pickedUp = shipmentRepository.countByStatus(Shipment.ShipmentStatus.PICKED_UP);
+            long outForDelivery = shipmentRepository.countByStatus(Shipment.ShipmentStatus.OUT_FOR_DELIVERY);
+            
+            return inTransit + pickedUp + outForDelivery;
         } catch (Exception e) {
             logger.error("Error getting active shipments count: {}", e.getMessage(), e);
             return 0;
