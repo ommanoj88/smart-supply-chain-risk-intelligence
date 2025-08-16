@@ -39,7 +39,12 @@ public class RateLimitService {
     
     @Value("${rate.limit.critical.refill.tokens:1}")
     private long criticalRefillTokens;
-    
+
+    @Value("${redis.enabled:false}")
+    private boolean redisEnabled;
+
+    private boolean redisErrorLogged = false;
+
     public enum RateLimitType {
         DEFAULT(Duration.ofMinutes(1)),
         AUTH(Duration.ofMinutes(1)),
@@ -58,9 +63,13 @@ public class RateLimitService {
     
     public boolean isAllowed(String key, RateLimitType type) {
         try {
-            if (redisTemplate != null) {
+            if (redisTemplate != null && redisEnabled) {
                 return isAllowedRedis(key, type);
             } else {
+                if (!redisErrorLogged && !redisEnabled) {
+                    logger.info("Using in-memory rate limiting (Redis disabled)");
+                    redisErrorLogged = true;
+                }
                 return isAllowedMemory(key, type);
             }
         } catch (Exception e) {
@@ -91,7 +100,10 @@ public class RateLimitService {
             return newCount <= getCapacity(type);
             
         } catch (Exception e) {
-            logger.warn("Redis rate limiting failed, falling back to memory: {}", e.getMessage());
+            if (!redisErrorLogged) {
+                logger.warn("Redis connection failed, falling back to in-memory rate limiting: {}", e.getMessage());
+                redisErrorLogged = true;
+            }
             return isAllowedMemory(key, type);
         }
     }
