@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class RiskPrediction {
+public class RiskPredictionDTO {
     private Long supplierId;
     private Map<String, BigDecimal> riskScores; // Current and predicted risk scores
     private Map<String, Object> riskFactors;
@@ -16,7 +16,7 @@ public class RiskPrediction {
     private Integer timeHorizonDays;
     
     // Default constructor
-    public RiskPrediction() {}
+    public RiskPredictionDTO() {}
     
     // Getters and setters
     public Long getSupplierId() {

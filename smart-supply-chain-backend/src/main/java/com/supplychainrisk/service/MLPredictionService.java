@@ -1,7 +1,7 @@
 package com.supplychainrisk.service;
 
 import com.supplychainrisk.dto.MLPredictionResult;
-import com.supplychainrisk.dto.RiskPrediction;
+import com.supplychainrisk.dto.RiskPredictionDTO;
 import com.supplychainrisk.entity.Supplier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class MLPredictionService {
     /**
      * Predict future risk levels using ML models
      */
-    public RiskPrediction predictRisk(Supplier supplier, Map<String, Object> realTimeData, Duration timeHorizon) {
+    public RiskPredictionDTO predictRisk(Supplier supplier, Map<String, Object> realTimeData, Duration timeHorizon) {
         logger.info("Predicting risk for supplier {} with time horizon {} days", 
                    supplier.getId(), timeHorizon.toDays());
         
@@ -89,7 +89,7 @@ public class MLPredictionService {
     /**
      * Call external ML service for risk prediction
      */
-    private RiskPrediction callMLServiceForRiskPrediction(Supplier supplier, 
+    private RiskPredictionDTO callMLServiceForRiskPrediction(Supplier supplier, 
                                                          Map<String, Object> realTimeData, 
                                                          Duration timeHorizon) {
         Map<String, Object> request = new HashMap<>();
@@ -133,10 +133,10 @@ public class MLPredictionService {
     /**
      * Generate fallback risk prediction using statistical methods
      */
-    private RiskPrediction generateFallbackRiskPrediction(Supplier supplier, Duration timeHorizon) {
+    private RiskPredictionDTO generateFallbackRiskPrediction(Supplier supplier, Duration timeHorizon) {
         logger.debug("Generating fallback risk prediction for supplier {}", supplier.getId());
         
-        RiskPrediction prediction = new RiskPrediction();
+        RiskPredictionDTO prediction = new RiskPredictionDTO();
         prediction.setSupplierId(supplier.getId());
         prediction.setTimeHorizonDays((int) timeHorizon.toDays());
         prediction.setPredictedAt(LocalDateTime.now());
@@ -429,8 +429,8 @@ public class MLPredictionService {
     }
     
     // Mapping methods for ML service responses
-    private RiskPrediction mapToRiskPrediction(Map<String, Object> response, Long supplierId, int timeHorizonDays) {
-        RiskPrediction prediction = new RiskPrediction();
+    private RiskPredictionDTO mapToRiskPrediction(Map<String, Object> response, Long supplierId, int timeHorizonDays) {
+        RiskPredictionDTO prediction = new RiskPredictionDTO();
         prediction.setSupplierId(supplierId);
         prediction.setTimeHorizonDays(timeHorizonDays);
         prediction.setPredictedAt(LocalDateTime.now());
