@@ -21,6 +21,10 @@ public class SupplierRecommendation {
     private LocalDateTime generatedAt;
     private Integer priority; // 1-10, lower is higher priority
     
+    // Enhanced fields for compatibility
+    private com.supplychainrisk.entity.Supplier supplier;
+    private String matchReason;
+    
     // Default constructor
     public SupplierRecommendation() {}
     
@@ -201,5 +205,38 @@ public class SupplierRecommendation {
     
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+    
+    // Enhanced compatibility methods
+    public Double getScore() {
+        return totalScore != null ? totalScore.doubleValue() : 0.0;
+    }
+    
+    public void setScore(Double score) {
+        this.totalScore = score != null ? BigDecimal.valueOf(score) : BigDecimal.ZERO;
+    }
+    
+    public com.supplychainrisk.entity.Supplier getSupplier() {
+        return supplier;
+    }
+    
+    public void setSupplier(com.supplychainrisk.entity.Supplier supplier) {
+        this.supplier = supplier;
+        if (supplier != null) {
+            this.supplierId = supplier.getId();
+            this.supplierName = supplier.getName();
+            this.supplierCode = supplier.getSupplierCode();
+        }
+    }
+    
+    public String getMatchReason() {
+        return matchReason != null ? matchReason : reasonCode;
+    }
+    
+    public void setMatchReason(String matchReason) {
+        this.matchReason = matchReason;
+        if (this.reasonCode == null) {
+            this.reasonCode = matchReason;
+        }
     }
 }
