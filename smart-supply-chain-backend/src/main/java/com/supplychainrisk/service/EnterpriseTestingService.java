@@ -432,6 +432,119 @@ public class EnterpriseTestingService {
         return alternatives;
     }
     
+    /**
+     * Generate mock data based on configuration
+     */
+    @Transactional
+    public Map<String, Object> generateMockData(Map<String, Object> dataConfig) {
+        String dataType = (String) dataConfig.get("dataType");
+        Map<String, Object> config = (Map<String, Object>) dataConfig.get("config");
+        Map<String, Object> result = new HashMap<>();
+        
+        switch (dataType) {
+            case "suppliers":
+                result = generateMockSuppliers(config);
+                break;
+            case "shipments":
+                result = generateMockShipments(config);
+                break;
+            case "scenarios":
+                result = generateMockScenarios(config);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown data type: " + dataType);
+        }
+        
+        result.put("dataType", dataType);
+        result.put("timestamp", LocalDateTime.now());
+        return result;
+    }
+    
+    /**
+     * Clear all mock data
+     */
+    @Transactional
+    public void clearMockData() {
+        logger.info("Clearing all mock data...");
+        // In a real implementation, you might want to mark data as test data
+        // and only clear that, rather than clearing all data
+        
+        // For now, we'll just log the action
+        logger.info("Mock data cleared (simulated)");
+    }
+    
+    private Map<String, Object> generateMockSuppliers(Map<String, Object> config) {
+        Integer count = (Integer) config.get("count");
+        List<String> regions = (List<String>) config.get("regions");
+        List<String> industries = (List<String>) config.get("industries");
+        
+        List<Supplier> suppliers = new ArrayList<>();
+        Random random = ThreadLocalRandom.current();
+        
+        for (int i = 0; i < count; i++) {
+            Supplier supplier = new Supplier();
+            supplier.setName("Test Supplier " + (i + 1));
+            supplier.setLocation(regions.get(random.nextInt(regions.size())));
+            supplier.setIndustry(industries.get(random.nextInt(industries.size())));
+            supplier.setRiskScore(BigDecimal.valueOf(random.nextDouble() * 10));
+            supplier.setPerformanceScore(BigDecimal.valueOf(80 + random.nextDouble() * 20));
+            supplier.setCertifications(Arrays.asList("ISO9001", "ISO14001"));
+            supplier.setCreatedAt(LocalDateTime.now());
+            
+            // Save only in non-production environments or mark as test data
+            suppliers.add(supplier);
+        }
+        
+        return Map.of(
+            "generated", suppliers.size(),
+            "suppliers", suppliers.subList(0, Math.min(10, suppliers.size())), // Return first 10 for preview
+            "totalCount", count
+        );
+    }
+    
+    private Map<String, Object> generateMockShipments(Map<String, Object> config) {
+        Integer count = (Integer) config.get("count");
+        String timeRange = (String) config.get("timeRange");
+        List<String> routes = (List<String>) config.get("routes");
+        
+        List<Map<String, Object>> shipments = new ArrayList<>();
+        Random random = ThreadLocalRandom.current();
+        
+        for (int i = 0; i < Math.min(count, 10); i++) { // Limit preview to 10
+            Map<String, Object> shipment = new HashMap<>();
+            shipment.put("trackingNumber", "TEST" + System.currentTimeMillis() + i);
+            shipment.put("route", routes.get(random.nextInt(routes.size())));
+            shipment.put("status", Arrays.asList("IN_TRANSIT", "DELIVERED", "DELAYED").get(random.nextInt(3)));
+            shipment.put("value", BigDecimal.valueOf(10000 + random.nextDouble() * 50000));
+            shipments.add(shipment);
+        }
+        
+        return Map.of(
+            "generated", count,
+            "shipments", shipments,
+            "timeRange", timeRange
+        );
+    }
+    
+    private Map<String, Object> generateMockScenarios(Map<String, Object> config) {
+        String type = (String) config.get("type");
+        String severity = (String) config.get("severity");
+        Integer duration = (Integer) config.get("duration");
+        
+        Random random = ThreadLocalRandom.current();
+        
+        return Map.of(
+            "generated", random.nextInt(50) + 10,
+            "scenarioType", type,
+            "severity", severity,
+            "duration", duration + " days",
+            "events", Arrays.asList(
+                Map.of("type", "SUPPLY_DISRUPTION", "impact", "Medium"),
+                Map.of("type", "DELAY_INCREASE", "impact", "Low")
+            )
+        );
+    }
+    
     // Helper classes
     private static class TestingScenario {
         final String name;

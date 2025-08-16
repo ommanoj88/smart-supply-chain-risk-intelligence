@@ -163,4 +163,49 @@ public class AdminController {
             ));
         }
     }
+    
+    @PostMapping("/testing/generate-mock-data")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateMockData(@RequestBody Map<String, Object> dataConfig) {
+        try {
+            String dataType = (String) dataConfig.get("dataType");
+            logger.info("Generating mock data for type: {}", dataType);
+            
+            Map<String, Object> result = enterpriseTestingService.generateMockData(dataConfig);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", result,
+                "message", "Mock data generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Mock data generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Mock data generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/testing/clear-mock-data")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> clearMockData() {
+        try {
+            logger.info("Clearing mock data...");
+            enterpriseTestingService.clearMockData();
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Mock data cleared successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Clear mock data failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Clear mock data failed: " + e.getMessage()
+            ));
+        }
+    }
 }
