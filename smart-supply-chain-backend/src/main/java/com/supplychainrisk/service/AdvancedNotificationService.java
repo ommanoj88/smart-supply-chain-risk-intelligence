@@ -469,6 +469,7 @@ public class AdvancedNotificationService {
         private String text;
         private Object attachments;
         private Object blocks;
+        private boolean interactive;
         
         public static SlackMessageBuilder builder() {
             return new SlackMessageBuilder();
@@ -479,6 +480,7 @@ public class AdvancedNotificationService {
         public String getText() { return text; }
         public Object getAttachments() { return attachments; }
         public Object getBlocks() { return blocks; }
+        public boolean isInteractive() { return interactive; }
         
         public static class SlackMessageBuilder {
             private SlackMessage message = new SlackMessage();
@@ -487,6 +489,7 @@ public class AdvancedNotificationService {
             public SlackMessageBuilder text(String text) { message.text = text; return this; }
             public SlackMessageBuilder attachments(Object attachments) { message.attachments = attachments; return this; }
             public SlackMessageBuilder blocks(Object blocks) { message.blocks = blocks; return this; }
+            public SlackMessageBuilder interactive(boolean interactive) { message.interactive = interactive; return this; }
             public SlackMessage build() { return message; }
         }
     }
