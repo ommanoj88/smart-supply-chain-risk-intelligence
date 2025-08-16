@@ -138,6 +138,50 @@ public class RealTimeUpdateService {
     }
     
     /**
+     * Broadcast analytics update to connected clients
+     */
+    @Async
+    public void broadcastAnalyticsUpdate(String analysisType, Object result) {
+        try {
+            Map<String, Object> analyticsUpdate = new HashMap<>();
+            analyticsUpdate.put("type", "ANALYTICS_UPDATE");
+            analyticsUpdate.put("analysisType", analysisType);
+            analyticsUpdate.put("result", result);
+            analyticsUpdate.put("timestamp", LocalDateTime.now().toString());
+            
+            // Broadcast to analytics topic
+            messagingTemplate.convertAndSend("/topic/analytics", analyticsUpdate);
+            messagingTemplate.convertAndSend("/topic/dashboard", analyticsUpdate);
+            
+            logger.info("Broadcasted analytics update for analysis type: {}", analysisType);
+        } catch (Exception e) {
+            logger.error("Error broadcasting analytics update: {}", e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Broadcast ML model status update
+     */
+    @Async
+    public void broadcastMLModelUpdate(String modelVersion, Map<String, Object> metrics) {
+        try {
+            Map<String, Object> modelUpdate = new HashMap<>();
+            modelUpdate.put("type", "ML_MODEL_UPDATE");
+            modelUpdate.put("modelVersion", modelVersion);
+            modelUpdate.put("metrics", metrics);
+            modelUpdate.put("timestamp", LocalDateTime.now().toString());
+            
+            // Broadcast model update
+            messagingTemplate.convertAndSend("/topic/ml-models", modelUpdate);
+            messagingTemplate.convertAndSend("/topic/analytics", modelUpdate);
+            
+            logger.info("Broadcasted ML model update for version: {}", modelVersion);
+        } catch (Exception e) {
+            logger.error("Error broadcasting ML model update: {}", e.getMessage(), e);
+        }
+    }
+    
+    /**
      * Broadcast system-wide dashboard update
      */
     @Async
