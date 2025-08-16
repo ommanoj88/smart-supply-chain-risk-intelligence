@@ -484,11 +484,11 @@ public class EnterpriseTestingService {
         for (int i = 0; i < count; i++) {
             Supplier supplier = new Supplier();
             supplier.setName("Test Supplier " + (i + 1));
-            supplier.setLocation(regions.get(random.nextInt(regions.size())));
+            supplier.setCity(regions.get(random.nextInt(regions.size())));
             supplier.setIndustry(industries.get(random.nextInt(industries.size())));
-            supplier.setRiskScore(BigDecimal.valueOf(random.nextDouble() * 10));
-            supplier.setPerformanceScore(BigDecimal.valueOf(80 + random.nextDouble() * 20));
-            supplier.setCertifications(Arrays.asList("ISO9001", "ISO14001"));
+            supplier.setOverallRiskScore((int)(random.nextDouble() * 100));
+            supplier.setQualityRating(BigDecimal.valueOf(80 + random.nextDouble() * 20));
+            supplier.setIsoCertifications(Arrays.asList("ISO9001", "ISO14001"));
             supplier.setCreatedAt(LocalDateTime.now());
             
             // Save only in non-production environments or mark as test data
