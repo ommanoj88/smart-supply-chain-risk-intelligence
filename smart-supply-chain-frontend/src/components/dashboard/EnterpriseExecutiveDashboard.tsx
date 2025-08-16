@@ -3,9 +3,7 @@ import {
   Grid,
   Box,
   Typography,
-  Card,
   CardContent,
-  Button,
   Tabs,
   Tab,
   IconButton,
@@ -25,7 +23,6 @@ import {
   MonetizationOn,
   Timeline,
   Security,
-  Warning,
   CheckCircle,
   Speed,
   Science,
@@ -33,9 +30,7 @@ import {
 import { motion } from 'framer-motion';
 import { 
   PremiumAreaChart, 
-  PremiumBarChart, 
   PremiumLineChart, 
-  PremiumPieChart,
 } from '../common/PremiumCharts';
 import { 
   PremiumKPICard,
@@ -114,7 +109,7 @@ export const EnterpriseExecutiveDashboard: React.FC = () => {
     serviceLevel: 97.3,
   });
   
-  const [predictiveInsights, setPredictiveInsights] = useState([
+  const [predictiveInsights] = useState([
     {
       type: 'DEMAND_FORECAST',
       confidence: 91.2,
@@ -264,7 +259,7 @@ export const EnterpriseExecutiveDashboard: React.FC = () => {
 
       {/* Navigation Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
           <Tab label="Executive Overview" icon={<Assessment />} />
           <Tab label="Planning & Analytics" icon={<Analytics />} />
           <Tab label="Predictive Insights" icon={<Science />} />
@@ -479,7 +474,7 @@ export const EnterpriseExecutiveDashboard: React.FC = () => {
                     { week: 'W6', demand: 2300, supply: 2350, gap: 50 },
                   ]}
                   xKey="week"
-                  yKey="demand"
+                  yKeys={["demand"]}
                   title=""
                   height={300}
                   loading={loading}

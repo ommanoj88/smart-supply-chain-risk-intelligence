@@ -36,6 +36,9 @@ public class SupplyChainPlanningService {
     @Autowired
     private NotificationService notificationService;
     
+    @Autowired
+    private UserService userService;
+
     /**
      * Generate AI-powered demand forecast using multiple algorithms
      */
@@ -130,15 +133,16 @@ public class SupplyChainPlanningService {
             
             recommendations.add(Map.of(
                 "supplierId", supplier.getId(),
-                "supplierName", supplier.getCompanyName(),
+                "supplierName", supplier.getName(), // Changed from getCompanyName() to getName()
                 "currentCapacity", Math.round(currentCapacity),
                 "utilization", Math.round(utilizationRate * 100.0) / 100.0,
                 "availableCapacity", Math.round(availableCapacity),
                 "leadTime", ThreadLocalRandom.current().nextInt(7, 28) + " days",
                 "costPerUnit", ThreadLocalRandom.current().nextDouble(10.0, 50.0),
                 "qualityScore", ThreadLocalRandom.current().nextDouble(0.90, 1.0),
-                "riskScore", supplier.getRiskScore(),
-                "recommendation", generateSupplyRecommendation(utilizationRate, supplier.getRiskScore().doubleValue())
+                "riskScore", supplier.getOverallRiskScore(), // Changed from getRiskScore()
+                "recommendation", generateSupplyRecommendation(utilizationRate,
+                    supplier.getOverallRiskScore() != null ? supplier.getOverallRiskScore().doubleValue() : 0.0)
             ));
         }
         
@@ -195,20 +199,21 @@ public class SupplyChainPlanningService {
             double reorderPoint = (demand * leadTime) + safetyStock;
             double economicOrderQuantity = calculateEOQ(demand * 52, 50.0, 0.25); // Annual demand, order cost, holding cost rate
             
-            inventoryRecommendations.add(Map.of(
-                "itemCode", "ITEM-" + String.format("%06d", i),
-                "currentStock", ThreadLocalRandom.current().nextInt(0, 2000),
-                "safetyStock", Math.round(safetyStock),
-                "reorderPoint", Math.round(reorderPoint),
-                "optimalOrderQuantity", Math.round(economicOrderQuantity),
-                "averageDemand", Math.round(demand),
-                "leadTime", Math.round(leadTime),
-                "demandVariability", Math.round(demandVariability * 100.0) / 100.0,
-                "serviceLevel", serviceLevel,
-                "stockoutRisk", ThreadLocalRandom.current().nextDouble(0.01, 0.10),
-                "carryingCost", ThreadLocalRandom.current().nextDouble(500, 5000),
-                "stockoutCost", ThreadLocalRandom.current().nextDouble(1000, 10000)
-            ));
+            Map<String, Object> recommendation = new HashMap<>();
+            recommendation.put("itemCode", "ITEM-" + String.format("%06d", i));
+            recommendation.put("currentStock", ThreadLocalRandom.current().nextInt(0, 2000));
+            recommendation.put("safetyStock", Math.round(safetyStock));
+            recommendation.put("reorderPoint", Math.round(reorderPoint));
+            recommendation.put("optimalOrderQuantity", Math.round(economicOrderQuantity));
+            recommendation.put("averageDemand", Math.round(demand));
+            recommendation.put("leadTime", Math.round(leadTime));
+            recommendation.put("demandVariability", Math.round(demandVariability * 100.0) / 100.0);
+            recommendation.put("serviceLevel", serviceLevel);
+            recommendation.put("stockoutRisk", ThreadLocalRandom.current().nextDouble(0.01, 0.10));
+            recommendation.put("carryingCost", ThreadLocalRandom.current().nextDouble(500, 5000));
+            recommendation.put("stockoutCost", ThreadLocalRandom.current().nextDouble(1000, 10000));
+
+            inventoryRecommendations.add(recommendation);
         }
         
         inventoryPlan.put("inventoryRecommendations", inventoryRecommendations);
@@ -339,12 +344,23 @@ public class SupplyChainPlanningService {
         ));
         
         // Trigger notifications
-        notificationService.sendNotification(
-            "Response Plan Executed",
-            "Automated response plan for " + responseType + " has been executed",
-            "ADMIN"
-        );
-        
+        try {
+            User adminUser = userService.getUserByUsername("admin").orElse(null);
+            if (adminUser != null) {
+                notificationService.createNotification(
+                    adminUser,
+                    "RESPONSE_PLAN",
+                    "Response Plan Executed",
+                    "Automated response plan for " + responseType + " has been executed",
+                    Notification.Priority.HIGH
+                );
+            } else {
+                logger.warn("Admin user not found, skipping notification");
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to send notification: {}", e.getMessage());
+        }
+
         return response;
     }
     

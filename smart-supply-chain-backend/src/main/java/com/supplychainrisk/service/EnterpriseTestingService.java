@@ -106,13 +106,13 @@ public class EnterpriseTestingService {
         // Risk metrics
         List<Supplier> suppliers = supplierRepository.findAll();
         double avgRiskScore = suppliers.stream()
-            .mapToDouble(s -> s.getRiskScore() != null ? s.getRiskScore().doubleValue() : 0.0)
+            .mapToDouble(s -> s.getOverallRiskScore() != null ? s.getOverallRiskScore().doubleValue() : 0.0)
             .average()
             .orElse(0.0);
         
         stats.put("averageRiskScore", Math.round(avgRiskScore * 100.0) / 100.0);
         stats.put("highRiskSuppliers", suppliers.stream()
-            .mapToInt(s -> s.getRiskScore() != null && s.getRiskScore().doubleValue() > 3.0 ? 1 : 0)
+            .mapToInt(s -> s.getOverallRiskScore() != null && s.getOverallRiskScore().doubleValue() > 70.0 ? 1 : 0)
             .sum());
         
         // Geographic distribution
@@ -123,11 +123,15 @@ public class EnterpriseTestingService {
         });
         stats.put("suppliersByCountry", suppliersByCountry);
         
-        // Recent activity
+        // Recent activity - using simpler counting methods
         LocalDateTime last24Hours = LocalDateTime.now().minusHours(24);
-        stats.put("recentShipments", shipmentRepository.countByCreatedAtAfter(last24Hours));
-        stats.put("recentEvents", trackingEventRepository.countByEventTimestampAfter(last24Hours));
-        
+        stats.put("recentShipments", shipmentRepository.findAll().stream()
+            .mapToLong(s -> s.getCreatedAt() != null && s.getCreatedAt().isAfter(last24Hours) ? 1 : 0)
+            .sum());
+        stats.put("recentEvents", trackingEventRepository.findAll().stream()
+            .mapToLong(e -> e.getEventTimestamp() != null && e.getEventTimestamp().isAfter(last24Hours) ? 1 : 0)
+            .sum());
+
         return stats;
     }
     
