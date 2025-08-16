@@ -1,7 +1,11 @@
 package com.supplychainrisk.controller;
 
+import com.supplychainrisk.dto.CrisisScenarioRequest;
+import com.supplychainrisk.dto.MarketDataRequest;
+import com.supplychainrisk.dto.SupplierScenarioRequest;
 import com.supplychainrisk.service.DataSeedingService;
 import com.supplychainrisk.service.EnterpriseTestingService;
+import com.supplychainrisk.service.EnhancedMockDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,9 @@ public class AdminController {
     
     @Autowired
     private EnterpriseTestingService enterpriseTestingService;
+    
+    @Autowired
+    private EnhancedMockDataService enhancedMockDataService;
     
     @PostMapping("/seed-data")
     @PreAuthorize("hasRole('ADMIN')")
@@ -162,5 +169,196 @@ public class AdminController {
                 "error", "Data reset failed: " + e.getMessage()
             ));
         }
+    }
+    
+    // Enhanced Mock Data Generation Endpoints
+    
+    @PostMapping("/mock-data/crisis-scenario")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateCrisisScenario(@RequestBody CrisisScenarioRequest request) {
+        try {
+            logger.info("Generating enhanced crisis scenario: {}", request.getScenarioType());
+            Map<String, Object> result = enhancedMockDataService.generateCrisisScenario(request);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "scenario", result,
+                "message", "Crisis scenario generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Crisis scenario generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Crisis scenario generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/mock-data/market-scenario")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateMarketScenario(@RequestBody MarketDataRequest request) {
+        try {
+            logger.info("Generating market data scenario: {}", request.getDataType());
+            Map<String, Object> result = enhancedMockDataService.generateMarketDataScenario(request);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "marketData", result,
+                "message", "Market data scenario generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Market scenario generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Market scenario generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/mock-data/supplier-scenario")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateSupplierScenario(@RequestBody SupplierScenarioRequest request) {
+        try {
+            logger.info("Generating supplier performance scenario: {} for supplier {}", 
+                request.getScenarioType(), request.getSupplierId());
+            Map<String, Object> result = enhancedMockDataService.generateSupplierPerformanceScenario(request);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "supplierScenario", result,
+                "message", "Supplier scenario generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Supplier scenario generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Supplier scenario generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @PostMapping("/mock-data/complex-shipment-scenario")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> generateComplexShipmentScenario(@RequestBody Map<String, Object> request) {
+        try {
+            logger.info("Generating complex shipment scenario: {}", request.get("scenarioType"));
+            
+            // Generate complex shipment scenarios (multi-modal, customs delays, port congestion)
+            Map<String, Object> result = generateComplexShipmentData(request);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "shipmentScenario", result,
+                "message", "Complex shipment scenario generated successfully"
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Complex shipment scenario generation failed: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "error", "Complex shipment scenario generation failed: " + e.getMessage()
+            ));
+        }
+    }
+    
+    @GetMapping("/mock-data/scenario-capabilities")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPPLY_MANAGER')")
+    public ResponseEntity<?> getScenarioCapabilities() {
+        try {
+            Map<String, Object> capabilities = Map.of(
+                "crisisScenarios", Map.of(
+                    "available", new String[]{"HURRICANE", "TRADE_WAR", "SUPPLIER_BANKRUPTCY", "PANDEMIC"},
+                    "description", "Comprehensive crisis scenarios with cascading effects"
+                ),
+                "marketDataScenarios", Map.of(
+                    "available", new String[]{"CURRENCY", "COMMODITY", "WEATHER", "ECONOMIC"},
+                    "description", "Market data simulation affecting costs and routing"
+                ),
+                "supplierScenarios", Map.of(
+                    "available", new String[]{"PERFORMANCE_DEGRADATION", "CAPACITY_CONSTRAINT", "QUALITY_ISSUE", "COMPLIANCE_ISSUE"},
+                    "description", "Advanced supplier performance scenarios"
+                ),
+                "shipmentScenarios", Map.of(
+                    "available", new String[]{"MULTI_MODAL_TRANSPORT", "CUSTOMS_DELAYS", "PORT_CONGESTION", "ROUTE_OPTIMIZATION"},
+                    "description", "Complex shipment scenarios with realistic delays"
+                ),
+                "features", new String[]{
+                    "Realistic crisis scenarios with 18-month historical data",
+                    "Market data integration with currency and commodity impacts",
+                    "Advanced supplier degradation patterns",
+                    "Multi-modal transport simulation",
+                    "Cascading effect modeling",
+                    "Recovery timeline simulation"
+                }
+            );
+            
+            return ResponseEntity.ok(capabilities);
+            
+        } catch (Exception e) {
+            logger.error("Error retrieving scenario capabilities: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                "error", "Failed to retrieve scenario capabilities"
+            ));
+        }
+    }
+    
+    // Helper method for complex shipment scenarios
+    private Map<String, Object> generateComplexShipmentData(Map<String, Object> request) {
+        String scenarioType = (String) request.get("scenarioType");
+        
+        Map<String, Object> scenario = Map.of(
+            "scenarioType", scenarioType,
+            "generatedAt", java.time.LocalDateTime.now()
+        );
+        
+        return switch (scenarioType) {
+            case "MULTI_MODAL_TRANSPORT" -> generateMultiModalTransportScenario();
+            case "CUSTOMS_DELAYS" -> generateCustomsDelayScenario();
+            case "PORT_CONGESTION" -> generatePortCongestionScenario();
+            case "ROUTE_OPTIMIZATION" -> generateRouteOptimizationScenario();
+            default -> Map.of("error", "Unknown shipment scenario type");
+        };
+    }
+    
+    private Map<String, Object> generateMultiModalTransportScenario() {
+        return Map.of(
+            "transportModes", new String[]{"OCEAN", "RAIL", "TRUCK"},
+            "intermodalDelays", "2-4 hours at each transfer point",
+            "costOptimization", "15% savings vs air freight",
+            "timeTradeoff", "+5 days vs direct air transport",
+            "transferPoints", new String[]{"Port of Long Beach", "Chicago Rail Hub", "Final Mile Truck"}
+        );
+    }
+    
+    private Map<String, Object> generateCustomsDelayScenario() {
+        return Map.of(
+            "averageDelayHours", 24,
+            "documentationIssues", "Missing commercial invoice details",
+            "dutyChanges", "+12% unexpected tariff adjustment",
+            "inspectionRate", "25% physical inspection rate",
+            "borderCongestion", "HIGH - 48 hour queue at border"
+        );
+    }
+    
+    private Map<String, Object> generatePortCongestionScenario() {
+        return Map.of(
+            "affectedPorts", new String[]{"Los Angeles", "Long Beach", "Rotterdam", "Singapore"},
+            "vesselWaitingTime", "5-8 days average",
+            "containerShortage", "CRITICAL - 40% shortage",
+            "alternativePorts", new String[]{"Oakland", "Seattle", "Hamburg"},
+            "costIncrease", "25-40% premium for expedited handling"
+        );
+    }
+    
+    private Map<String, Object> generateRouteOptimizationScenario() {
+        return Map.of(
+            "emergencyRerouting", "Suez Canal blockage - Panama alternative",
+            "costOptimization", "Northern route saves 15% on fuel",
+            "timeOptimization", "Air freight reduces time by 12 days",
+            "riskMitigation", "Avoiding high-piracy areas adds 2 days but reduces insurance cost"
+        );
     }
 }
