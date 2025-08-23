@@ -16,7 +16,12 @@ import Profile from './components/Auth/Profile';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import ExecutiveDashboard from './components/dashboard/ExecutiveDashboard';
 import AnalyticsDashboard from './components/dashboard/AnalyticsDashboard';
+import AdvancedAnalyticsDashboard from './components/dashboard/AdvancedAnalyticsDashboard';
+import PredictiveAnalyticsDashboard from './components/dashboard/PredictiveAnalyticsDashboard';
+import AIInsightsPanel from './components/dashboard/AIInsightsPanel';
+import SupplierDashboard from './components/suppliers/SupplierDashboard';
 import EnhancedSupplierDashboard from './components/suppliers/EnhancedSupplierDashboard';
+
 import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierManagement';
 import EnhancedShipmentDashboard from './components/shipments/EnhancedShipmentDashboard';
 import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
@@ -194,6 +199,24 @@ function App() {
                     <Route path="/dashboard/analytics" element={
                       <ProtectedRoute>
                         <AnalyticsDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/advanced" element={
+                      <ProtectedRoute>
+                        <AdvancedAnalyticsDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/predictive" element={
+                      <ProtectedRoute>
+                        <PredictiveAnalyticsDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/ai-insights" element={
+                      <ProtectedRoute>
+                        <AIInsightsPanel />
                       </ProtectedRoute>
                     } />
                     

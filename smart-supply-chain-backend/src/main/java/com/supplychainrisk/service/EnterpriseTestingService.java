@@ -484,7 +484,10 @@ public class EnterpriseTestingService {
         for (int i = 0; i < count; i++) {
             Supplier supplier = new Supplier();
             supplier.setName("Test Supplier " + (i + 1));
-            supplier.setCountry(regions.get(random.nextInt(regions.size())));
+String region = regions.get(random.nextInt(regions.size()));
+supplier.setCity(region);
+supplier.setCountry(region);
+
             supplier.setIndustry(industries.get(random.nextInt(industries.size())));
             supplier.setOverallRiskScore((int)(random.nextDouble() * 100));
             supplier.setQualityRating(BigDecimal.valueOf(80 + random.nextDouble() * 20));
