@@ -20,8 +20,10 @@ import AdvancedAnalyticsDashboard from './components/dashboard/AdvancedAnalytics
 import PredictiveAnalyticsDashboard from './components/dashboard/PredictiveAnalyticsDashboard';
 import AIInsightsPanel from './components/dashboard/AIInsightsPanel';
 import SupplierDashboard from './components/suppliers/SupplierDashboard';
+import EnhancedSupplierDashboard from './components/suppliers/EnhancedSupplierDashboard';
+
 import EnhancedSupplierManagement from './components/suppliers/EnhancedSupplierManagement';
-import ShipmentDashboard from './components/shipments/ShipmentDashboard';
+import EnhancedShipmentDashboard from './components/shipments/EnhancedShipmentDashboard';
 import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
 import NotificationCenter from './components/notifications/NotificationCenter';
 import UserManagement from './components/admin/UserManagement';
@@ -189,6 +191,11 @@ function App() {
                       </ProtectedRoute>
                     } />
                     
+                    {/* Demo Routes (for showcasing) */}
+                    <Route path="/demo/executive" element={<ExecutiveDashboard />} />
+                    <Route path="/demo/shipments" element={<EnhancedShipmentDashboard />} />
+                    <Route path="/demo/suppliers" element={<EnhancedSupplierDashboard />} />
+                    
                     <Route path="/dashboard/analytics" element={
                       <ProtectedRoute>
                         <AnalyticsDashboard />
@@ -216,7 +223,7 @@ function App() {
                     {/* Supplier Routes */}
                     <Route path="/suppliers" element={
                       <ProtectedRoute>
-                        <SupplierDashboard />
+                        <EnhancedSupplierDashboard />
                       </ProtectedRoute>
                     } />
                     
@@ -229,13 +236,13 @@ function App() {
                     {/* Shipment Routes */}
                     <Route path="/shipments" element={
                       <ProtectedRoute>
-                        <ShipmentDashboard />
+                        <EnhancedShipmentDashboard />
                       </ProtectedRoute>
                     } />
                     
                     <Route path="/shipments/tracking" element={
                       <ProtectedRoute>
-                        <ShipmentDashboard />
+                        <EnhancedShipmentDashboard />
                       </ProtectedRoute>
                     } />
                     

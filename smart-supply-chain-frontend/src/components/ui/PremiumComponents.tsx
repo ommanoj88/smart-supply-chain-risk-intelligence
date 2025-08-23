@@ -180,7 +180,7 @@ interface PremiumKPICardProps {
     period?: string;
   };
   icon?: React.ReactNode;
-  color?: 'primary' | 'success' | 'warning' | 'error' | 'info';
+  color?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'secondary';
   variant?: 'glass' | 'solid' | 'gradient';
   size?: 'small' | 'medium' | 'large';
   loading?: boolean;
@@ -264,6 +264,11 @@ const PremiumKPICard: React.FC<PremiumKPICardProps> = ({
         main: theme.palette.primary.main,
         light: theme.palette.primary.light,
         dark: theme.palette.primary.dark,
+      },
+      secondary: {
+        main: theme.palette.secondary.main,
+        light: theme.palette.secondary.light,
+        dark: theme.palette.secondary.dark,
       },
       success: {
         main: theme.palette.success.main,

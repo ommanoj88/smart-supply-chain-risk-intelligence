@@ -2,7 +2,7 @@ package com.supplychainrisk.service;
 
 import com.supplychainrisk.dto.AnalyticsRequest;
 import com.supplychainrisk.dto.MLPredictionResult;
-import com.supplychainrisk.dto.RiskPrediction;
+import com.supplychainrisk.dto.RiskPredictionDTO;
 import com.supplychainrisk.entity.AnalyticsResult;
 import com.supplychainrisk.entity.Supplier;
 import com.supplychainrisk.repository.AnalyticsResultRepository;
@@ -105,7 +105,7 @@ public class AnalyticsService {
             Map<String, Integer> currentRisk = calculateCurrentRiskScores(supplier);
             
             // Predict future risk using ML
-            RiskPrediction futureRisk = mlPredictionService.predictRisk(
+            RiskPredictionDTO futureRisk = mlPredictionService.predictRisk(
                 supplier, realTimeData, Duration.ofDays(30)
             );
             
@@ -404,7 +404,7 @@ public class AnalyticsService {
     
     private List<Map<String, Object>> generateRiskAlerts(Supplier supplier,
                                                         Map<String, Integer> currentRisk,
-                                                        RiskPrediction futureRisk) {
+                                                        RiskPredictionDTO futureRisk) {
         List<Map<String, Object>> alerts = new ArrayList<>();
         
         // Check for high current risk
@@ -449,7 +449,7 @@ public class AnalyticsService {
     }
     
     private Map<String, Object> calculateRiskTrend(Map<String, Integer> currentRisk, 
-                                                  RiskPrediction futureRisk) {
+                                                  RiskPredictionDTO futureRisk) {
         Map<String, Object> trend = new HashMap<>();
         
         // Overall trend
