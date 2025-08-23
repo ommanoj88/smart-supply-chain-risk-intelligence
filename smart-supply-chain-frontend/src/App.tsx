@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material';
+import { ThemeProvider, CssBaseline, GlobalStyles, Box, Typography } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -22,6 +22,7 @@ import EnhancedShipmentDashboard from './components/shipments/EnhancedShipmentDa
 import ShipmentTrackingWrapper from './components/shipments/ShipmentTrackingWrapper';
 import NotificationCenter from './components/notifications/NotificationCenter';
 import UserManagement from './components/admin/UserManagement';
+import TestingEnvironment from './components/admin/TestingEnvironment';
 
 // Enhanced Query Client with performance optimizations
 const queryClient = new QueryClient({
@@ -235,6 +236,13 @@ function App() {
                       </ProtectedRoute>
                     } />
                     
+                    {/* Admin Testing Environment Route */}
+                    <Route path="/admin/testing" element={
+                      <ProtectedRoute>
+                        <TestingEnvironment />
+                      </ProtectedRoute>
+                    } />
+                    
                     {/* User Routes */}
                     <Route path="/profile" element={
                       <ProtectedRoute>
@@ -250,6 +258,16 @@ function App() {
                     } />
                     
                     {/* Fallback */}
+                    <Route path="/unauthorized" element={
+                      <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="h4" color="error" gutterBottom>
+                          Access Denied
+                        </Typography>
+                        <Typography variant="body1">
+                          You don't have permission to access this resource.
+                        </Typography>
+                      </Box>
+                    } />
                     <Route path="*" element={<Navigate to="/dashboard/executive" replace />} />
                   </Routes>
                 </main>

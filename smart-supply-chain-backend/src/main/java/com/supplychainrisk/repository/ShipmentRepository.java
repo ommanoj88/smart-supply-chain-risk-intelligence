@@ -2,6 +2,7 @@ package com.supplychainrisk.repository;
 
 import com.supplychainrisk.entity.Shipment;
 import com.supplychainrisk.entity.Shipment.ShipmentStatus;
+import com.supplychainrisk.entity.Supplier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,8 @@ public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     List<Shipment> findByCarrierName(String carrierName);
 
     List<Shipment> findBySupplierId(Long supplierId);
+    
+    List<Shipment> findBySupplier(Supplier supplier);
 
     @Query("SELECT s FROM Shipment s WHERE s.status = :status AND s.estimatedDeliveryDate < :date")
     List<Shipment> findDelayedShipments(@Param("status") ShipmentStatus status, @Param("date") LocalDateTime date);

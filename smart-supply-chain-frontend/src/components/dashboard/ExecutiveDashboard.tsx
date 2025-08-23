@@ -6,14 +6,18 @@ import {
   IconButton,
   useTheme,
   alpha,
+  Alert,
+  Skeleton,
 } from '@mui/material';
 import {
   Refresh,
   LocalShipping,
   MonetizationOn,
-  Shield,
   Warning,
   Analytics,
+  Security,
+  Assessment,
+  AccountBalance,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { 
@@ -27,12 +31,13 @@ import {
 //   SupplierNetwork3D,
 // } from '../common/Premium3DCharts';
 import { 
-  PremiumKPICard,
   EnhancedSearchBar,
   ProgressRing,
   EnhancedFloatingActionButton,
   GlassCard,
 } from '../ui/PremiumComponents';
+import CircularProgress from '../ui/CircularProgress';
+import AnimatedCounter from '../ui/AnimatedCounter';
 
 /**
  * Enterprise-Grade Executive Dashboard with Advanced Analytics
@@ -45,28 +50,36 @@ import {
  */
 export const ExecutiveDashboard: React.FC = () => {
   const theme = useTheme();
-  const [dashboardData, setDashboardData] = useState({
-    supplyChainHealth: 87.3,
-    totalCostImpact: 2450000,
-    riskExposureIndex: 34.2,
-    activeShipments: 1247,
-    totalSuppliers: 156,
-    onTimeDeliveryRate: 94.8,
-    averageRiskScore: 2.4,
-    monthlyGrowth: 8.5,
-    criticalAlerts: 12,
-    // Enhanced Executive KPIs
-    budgetVariance: -3.2,
-    roi: 18.7,
-    qualityScore: 97.2,
-    complianceRate: 99.1,
-    capacityUtilization: 85.6,
-    highRiskSuppliers: 8,
-    mitigationEffectiveness: 92.4,
-    supplierReliabilityScore: 89.3,
-    costSavingsYTD: 3200000,
-    predictedDelay: 5.2,
-    demandForecastAccuracy: 94.1,
+const [executiveKPIs, setExecutiveKPIs] = useState<any>(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
+const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+// Legacy dashboard data for charts (keeping existing structure for compatibility)
+const [dashboardData, setDashboardData] = useState({
+  supplyChainHealth: 87.3,
+  totalCostImpact: 2450000,
+  riskExposureIndex: 34.2,
+  activeShipments: 1247,
+  totalSuppliers: 156,
+  onTimeDeliveryRate: 94.8,
+  averageRiskScore: 2.4,
+  monthlyGrowth: 8.5,
+  criticalAlerts: 12,
+  // Enhanced Executive KPIs
+  budgetVariance: -3.2,
+  roi: 18.7,
+  qualityScore: 97.2,
+  complianceRate: 99.1,
+  capacityUtilization: 85.6,
+  highRiskSuppliers: 8,
+  mitigationEffectiveness: 92.4,
+  supplierReliabilityScore: 89.3,
+  costSavingsYTD: 3200000,
+  predictedDelay: 5.2,
+  demandForecastAccuracy: 94.1,
+});
+
     riskTrends: [
       { date: 'Jan', high: 15, medium: 45, low: 89 },
       { date: 'Feb', high: 12, medium: 38, low: 95 },
@@ -158,42 +171,83 @@ export const ExecutiveDashboard: React.FC = () => {
       { x: 3, y: 1, z: 0, value: 179, label: 'Q4', category: 'Costs' },
     ],
   });
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-
-  // Simulated real-time data updates
-  useEffect(() => {
-    const fetchDashboardData = async () => {
+  
+  // Load Executive KPIs from backend API
+  const loadExecutiveKPIs = async () => {
+    try {
       setLoading(true);
+      setError(null);
       
-      // Simulate API call with minimal delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const response = await fetch('/api/executive/kpis');
+      if (!response.ok) {
+        throw new Error('Failed to load Executive KPIs');
+      }
       
+      const data = await response.json();
+      if (data.success) {
+        setExecutiveKPIs(data);
+        setLastUpdated(new Date());
+      } else {
+        throw new Error(data.error || 'Failed to load Executive KPIs');
+      }
+      
+    } catch (error) {
+      console.error('Error loading Executive KPIs:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load Executive KPIs');
+      
+      // Fallback data for development/demo
+      setExecutiveKPIs({
+        success: true,
+        supplyChainHealth: 87.3,
+        financial: {
+          costSavingsYTD: 2450000,
+          costSavingsTrend: 18.3,
+          roiPercentage: 24.7,
+          budgetVariance: -3.2,
+          costPerShipment: 1250.75,
+        },
+        operational: {
+          onTimeDeliveryRate: 94.8,
+          supplierPerformanceScore: 89.2,
+          qualityScore: 97.2,
+          complianceRate: 94.8,
+          perfectOrderRate: 91.5,
+        },
+        risks: {
+          activeHighRiskSuppliers: 8,
+          delayedShipments: 15,
+          riskExposureIndex: 34.2,
+          riskMitigationRate: 88.5,
+          avgResponseTime: 2.3,
+        },
+        counters: {
+          totalShipments: 1247,
+          activeShipments: 234,
+          totalSuppliers: 156,
+          activeAlerts: 12,
+        },
+        lastUpdated: new Date(),
+      });
+      
+    } finally {
       setLoading(false);
-      setLastUpdated(new Date());
-    };
+    }
+  };
 
-    fetchDashboardData();
+  // Load data on component mount and set up refresh
+  useEffect(() => {
+    loadExecutiveKPIs();
     
     // Set up real-time updates every 30 seconds
     const interval = setInterval(() => {
-      setLastUpdated(new Date());
+      loadExecutiveKPIs();
     }, 30000);
+    
     return () => clearInterval(interval);
   }, []);
 
   const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setDashboardData(prev => ({
-        ...prev,
-        supplyChainHealth: Math.max(80, Math.min(95, prev.supplyChainHealth + (Math.random() - 0.5) * 4)),
-        onTimeDeliveryRate: Math.max(90, Math.min(98, prev.onTimeDeliveryRate + (Math.random() - 0.5) * 2)),
-        activeShipments: prev.activeShipments + Math.floor((Math.random() - 0.5) * 20),
-      }));
-      setLoading(false);
-      setLastUpdated(new Date());
-    }, 1000);
+    loadExecutiveKPIs();
   };
 
   const cardVariants = {
@@ -276,7 +330,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     }} 
                   />
                   <Typography variant="caption" color="text.secondary">
-                    Live • Last updated: {lastUpdated.toLocaleTimeString()}
+                    Live • Last updated: {lastUpdated?.toLocaleTimeString() || 'Loading...'}
                   </Typography>
                 </Box>
               </Box>
@@ -315,7 +369,13 @@ export const ExecutiveDashboard: React.FC = () => {
         </GlassCard>
       </motion.div>
 
-      {/* Premium KPI Cards */}
+      {/* Enhanced Executive KPIs Dashboard */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+      
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -343,90 +403,157 @@ export const ExecutiveDashboard: React.FC = () => {
           Executive KPIs & Performance Metrics
         </Typography>
 
-        {/* Primary KPI Cards Row */}
+{/* Primary KPI Cards Row */}
+<Grid container spacing={3} sx={{ mb: 4 }}>
+  {/* Supply Chain Health */}
+  <Grid item xs={12} md={3}>
+    <PremiumKPICard
+      title="Supply Chain Health"
+      value={`${(executiveKPIs?.supplyChainHealth ?? dashboardData.supplyChainHealth).toFixed(1)}%`}
+      subtitle="Overall network performance score"
+      icon={<Shield />}
+      color="success"
+      variant="glass"
+      size="medium"
+      loading={loading}
+      animated
+      interactive
+      trend={{
+        value: 5.2,
+        direction: 'up',
+        period: 'vs last month',
+      }}
+    />
+  </Grid>
+
+  {/* Financial Impact */}
+  <Grid item xs={12} md={3}>
+    <PremiumKPICard
+      title="Cost Savings YTD"
+      value={`$${((executiveKPIs?.financial?.costSavingsYTD ?? dashboardData.costSavingsYTD) / 1_000_000).toFixed(1)}M`}
+      subtitle="Year-to-date cost optimization"
+      icon={<MonetizationOn />}
+      color="primary"
+      variant="glass"
+      size="medium"
+      loading={loading}
+      animated
+      interactive
+      trend={{
+        value: executiveKPIs?.financial?.costSavingsTrend ?? 18.7,
+        direction: 'up',
+        period: 'ROI this quarter',
+      }}
+    />
+  </Grid>
+
+  {/* Risk Exposure Index */}
+  <Grid item xs={12} md={3}>
+    <PremiumKPICard
+      title="Risk Exposure"
+      value={`${(executiveKPIs?.riskExposureIndex ?? dashboardData.riskExposureIndex).toFixed(1)}%`}
+      subtitle="Overall supply chain risk level"
+      icon={<Warning />}
+      color="warning"
+      variant="glass"
+      size="medium"
+      loading={loading}
+      animated
+      interactive
+      trend={{
+        value: 8.7,
+        direction: 'down',
+        period: 'risk reduction',
+      }}
+    />
+  </Grid>
+</Grid>
+          </Grid>
+
+          {/* Risk Exposure */}
+          <Grid item xs={12} md={6} lg={3}>
+            {loading ? (
+              <Skeleton variant="rectangular" height={200} />
+            ) : (
+              <AnimatedCounter
+                label="Risk Exposure Index"
+                value={executiveKPIs?.risks?.riskExposureIndex || 34.2}
+                format="number"
+                suffix="/100"
+                trend={{
+                  value: 8.7,
+                  direction: 'down',
+                  period: 'risk reduction'
+                }}
+                color="warning"
+                size="large"
+                icon={<Warning />}
+              />
+            )}
+          </Grid>
+        </Grid>
+
+        {/* Secondary KPIs Row */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Supply Chain Health */}
-          <Grid item xs={12} md={3}>
-            <PremiumKPICard
-              title="Supply Chain Health"
-              value={`${dashboardData.supplyChainHealth.toFixed(1)}%`}
-              subtitle="Overall network performance score"
-              icon={<Shield />}
-              color="success"
-              variant="glass"
-              size="medium"
-              loading={loading}
-              animated={true}
-              interactive={true}
-              trend={{
-                value: 5.2,
-                direction: 'up',
-                period: 'vs last month',
-              }}
-            />
+          <Grid item xs={12} sm={6} md={3}>
+            {loading ? (
+              <Skeleton variant="rectangular" height={150} />
+            ) : (
+              <AnimatedCounter
+                label="Active Shipments"
+                value={executiveKPIs?.counters?.activeShipments || 234}
+                format="number"
+                color="primary"
+                icon={<LocalShipping />}
+              />
+            )}
           </Grid>
 
-          {/* Financial Impact */}
-          <Grid item xs={12} md={3}>
-            <PremiumKPICard
-              title="Cost Savings YTD"
-              value={`$${(dashboardData.costSavingsYTD / 1000000).toFixed(1)}M`}
-              subtitle="Year-to-date cost optimization"
-              icon={<MonetizationOn />}
-              color="primary"
-              variant="glass"
-              size="medium"
-              loading={loading}
-              animated={true}
-              interactive={true}
-              trend={{
-                value: 18.7,
-                direction: 'up',
-                period: 'ROI this quarter',
-              }}
-            />
+          <Grid item xs={12} sm={6} md={3}>
+            {loading ? (
+              <Skeleton variant="rectangular" height={150} />
+            ) : (
+              <AnimatedCounter
+                label="Total Suppliers"
+                value={executiveKPIs?.counters?.totalSuppliers || 156}
+                format="number"
+                color="info"
+                icon={<AccountBalance />}
+              />
+            )}
           </Grid>
 
-          {/* Risk Exposure Index */}
-          <Grid item xs={12} md={3}>
-            <PremiumKPICard
-              title="Risk Exposure"
-              value={`${dashboardData.riskExposureIndex.toFixed(1)}%`}
-              subtitle="Overall supply chain risk level"
-              icon={<Warning />}
-              color="warning"
-              variant="glass"
-              size="medium"
-              loading={loading}
-              animated={true}
-              interactive={true}
-              trend={{
-                value: 8.7,
-                direction: 'down',
-                period: 'risk reduction',
-              }}
-            />
+          <Grid item xs={12} sm={6} md={3}>
+            {loading ? (
+              <Skeleton variant="rectangular" height={150} />
+            ) : (
+              <AnimatedCounter
+                label="Quality Score"
+                value={executiveKPIs?.operational?.qualityScore || 97.2}
+                format="percentage"
+                color="success"
+                icon={<Assessment />}
+              />
+            )}
           </Grid>
 
-          {/* Active Shipments */}
-          <Grid item xs={12} md={3}>
-            <PremiumKPICard
-              title="Active Shipments"
-              value={dashboardData.activeShipments.toLocaleString()}
-              subtitle="Currently in transit"
-              icon={<LocalShipping />}
-              color="info"
-              variant="glass"
-              size="medium"
-              loading={loading}
-              animated={true}
-              interactive={true}
-              trend={{
-                value: 15.4,
-                direction: 'up',
-                period: 'volume increase',
-              }}
-            />
+          <Grid item xs={12} sm={6} md={3}>
+            {loading ? (
+              <Skeleton variant="rectangular" height={150} />
+            ) : (
+              <AnimatedCounter
+                label="Active Alerts"
+                value={executiveKPIs?.counters?.activeAlerts || 12}
+                format="number"
+                trend={{
+                  value: 3,
+                  direction: 'down',
+                  period: 'from yesterday'
+                }}
+                color="error"
+                icon={<Security />}
+              />
+            )}
           </Grid>
         </Grid>
 
@@ -663,7 +790,7 @@ export const ExecutiveDashboard: React.FC = () => {
               </Typography>
               <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: 250 }}>
                 <ProgressRing
-                  value={dashboardData.onTimeDeliveryRate}
+                  value={executiveKPIs?.operational?.onTimeDeliveryRate || 94.8}
                   max={100}
                   size={200}
                   strokeWidth={12}

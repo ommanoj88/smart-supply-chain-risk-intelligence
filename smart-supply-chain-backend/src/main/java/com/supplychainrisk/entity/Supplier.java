@@ -190,7 +190,35 @@ public class Supplier {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // Enhanced relationship fields for new entities
+    @Column(name = "risk_score_double", precision = 5, scale = 2)
+    private Double riskScore;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "risk_level")
+    private RiskLevel riskLevel;
+    
+    @Column(name = "risk_last_updated")
+    private LocalDateTime riskLastUpdated;
+    
+    // Supplier relationship fields
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_supplier_id")
+    private Supplier parentSupplier;
+    
+    @OneToMany(mappedBy = "parentSupplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Supplier> subsidiaries;
+    
     // Relationships
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<SupplierLocation> locations;
+    
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RiskFactor> riskFactors;
+    
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<SupplierCertification> certifications;
+    
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SupplierPerformanceHistory> performanceHistory;
     
@@ -212,6 +240,10 @@ public class Supplier {
     
     public enum SupplierStatus {
         ACTIVE, INACTIVE, PENDING, BLOCKED
+    }
+    
+    public enum RiskLevel {
+        VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH
     }
     
     @PrePersist
@@ -627,5 +659,70 @@ public class Supplier {
     
     public void setCategories(Set<SupplierCategory> categories) {
         this.categories = categories;
+    }
+    
+    // Enhanced fields getters and setters
+    public Double getRiskScore() {
+        return riskScore;
+    }
+    
+    public void setRiskScore(Double riskScore) {
+        this.riskScore = riskScore;
+    }
+    
+    public RiskLevel getRiskLevel() {
+        return riskLevel;
+    }
+    
+    public void setRiskLevel(RiskLevel riskLevel) {
+        this.riskLevel = riskLevel;
+    }
+    
+    public LocalDateTime getRiskLastUpdated() {
+        return riskLastUpdated;
+    }
+    
+    public void setRiskLastUpdated(LocalDateTime riskLastUpdated) {
+        this.riskLastUpdated = riskLastUpdated;
+    }
+    
+    public Supplier getParentSupplier() {
+        return parentSupplier;
+    }
+    
+    public void setParentSupplier(Supplier parentSupplier) {
+        this.parentSupplier = parentSupplier;
+    }
+    
+    public Set<Supplier> getSubsidiaries() {
+        return subsidiaries;
+    }
+    
+    public void setSubsidiaries(Set<Supplier> subsidiaries) {
+        this.subsidiaries = subsidiaries;
+    }
+    
+    public Set<SupplierLocation> getLocations() {
+        return locations;
+    }
+    
+    public void setLocations(Set<SupplierLocation> locations) {
+        this.locations = locations;
+    }
+    
+    public Set<RiskFactor> getRiskFactors() {
+        return riskFactors;
+    }
+    
+    public void setRiskFactors(Set<RiskFactor> riskFactors) {
+        this.riskFactors = riskFactors;
+    }
+    
+    public Set<SupplierCertification> getCertifications() {
+        return certifications;
+    }
+    
+    public void setCertifications(Set<SupplierCertification> certifications) {
+        this.certifications = certifications;
     }
 }

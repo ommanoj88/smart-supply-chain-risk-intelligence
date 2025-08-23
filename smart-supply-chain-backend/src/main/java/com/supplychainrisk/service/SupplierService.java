@@ -220,6 +220,14 @@ public class SupplierService {
     }
     
     /**
+     * Get supplier entity by ID (for enhanced services)
+     */
+    public Supplier getSupplierEntityById(Long id) {
+        return supplierRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Supplier not found with id: " + id));
+    }
+    
+    /**
      * Get suppliers requiring audit
      */
     public List<SupplierDTO> getSuppliersRequiringAudit() {
