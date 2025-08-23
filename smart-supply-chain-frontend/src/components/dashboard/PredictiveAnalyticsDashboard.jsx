@@ -9,13 +9,13 @@ import {
 } from 'recharts';
 import {
   Card, CardContent, CardHeader,
-  Typography, Button, Select, MenuItem,
+  Typography, Select, MenuItem,
   FormControl, InputLabel, Chip, Alert,
   CircularProgress, Grid, Box, Tabs, Tab
 } from '@mui/material';
 import {
-  TrendingUp, TrendingDown, Warning, CheckCircle,
-  Analytics, PredictiveText, Speed, Security
+  TrendingUp, Warning, CheckCircle,
+  Analytics, Psychology, Speed, Security
 } from '@mui/icons-material';
 
 const PredictiveAnalyticsDashboard = () => {
@@ -205,7 +205,7 @@ const PredictiveAnalyticsDashboard = () => {
         <CardHeader
           title={
             <Box display="flex" alignItems="center" gap={2}>
-              <PredictiveText color="primary" />
+              <Psychology color="primary" />
               <Typography variant="h4">AI-Powered Predictive Analytics</Typography>
               <Chip 
                 label={connectionStatus} 

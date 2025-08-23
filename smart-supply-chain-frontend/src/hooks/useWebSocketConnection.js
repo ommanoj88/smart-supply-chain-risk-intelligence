@@ -242,7 +242,7 @@ export const useAnalyticsWebSocket = (options = {}) => {
         }
       });
     }
-  }, [webSocket.isConnected]);
+  }, [webSocket.isConnected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     ...webSocket,

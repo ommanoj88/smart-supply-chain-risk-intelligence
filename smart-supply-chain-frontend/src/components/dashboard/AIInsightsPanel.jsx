@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import {
   Card, CardContent, CardHeader, Typography, Button, Box,
-  Grid, Chip, Alert, LinearProgress, Gauge, Accordion,
-  AccordionSummary, AccordionDetails, Avatar, List,
-  ListItem, ListItemText, ListItemAvatar, IconButton,
-  Tooltip, CircularProgress
+  Grid, Chip, Alert, LinearProgress, Accordion,
+  AccordionSummary, AccordionDetails, Avatar,
+  CircularProgress
 } from '@mui/material';
 import {
-  Psychology, TrendingUp, TrendingDown, Warning,
-  CheckCircle, Speed, Security, Insights, SmartToy,
+  Psychology, TrendingUp, TrendingDown, CheckCircle,
+  Speed, Security, Insights, SmartToy,
   ExpandMore, ThumbUp, ThumbDown, Refresh
 } from '@mui/icons-material';
 
@@ -21,7 +20,6 @@ const AIInsightsPanel = ({ supplierId = null }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('DISCONNECTED');
-  const [selectedInsight, setSelectedInsight] = useState(null);
   const stompClientRef = useRef(null);
 
   // WebSocket connection setup
@@ -102,6 +100,85 @@ const AIInsightsPanel = ({ supplierId = null }) => {
 
   // Initial data load
   useEffect(() => {
+    const fetchAIInsights = async () => {
+      try {
+        // Generate mock insights for now
+        const mockInsights = generateMockInsights();
+        setInsights(mockInsights);
+      } catch (error) {
+        console.error('Error fetching AI insights:', error);
+      }
+    };
+
+    const fetchRealTimeRisk = async () => {
+      try {
+        if (supplierId) {
+          const response = await fetch(
+            `http://localhost:8080/api/analytics/real-time-risk/${supplierId}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            }
+          );
+          
+          if (response.ok) {
+            const riskData = await response.json();
+            setRealTimeRisk(riskData);
+          }
+        } else {
+          // Mock aggregate risk data
+          setRealTimeRisk({
+            newRiskScore: 45 + Math.random() * 30,
+            confidence: 85 + Math.random() * 10,
+            trend: 'stable',
+            riskFactors: {
+              financial: 35,
+              operational: 50,
+              geographic: 40,
+              compliance: 30
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching real-time risk:', error);
+      }
+    };
+
+    const fetchRecommendations = async () => {
+      try {
+        if (supplierId) {
+          const response = await fetch(
+            'http://localhost:8080/api/analytics/recommendations/suppliers',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              },
+              body: JSON.stringify({
+                currentSupplierId: supplierId,
+                criteria: {
+                  maxRecommendations: 5,
+                  businessPriority: 'RISK_MINIMIZATION'
+                }
+              })
+            }
+          );
+          
+          if (response.ok) {
+            const recommendations = await response.json();
+            setRecommendations(recommendations);
+          }
+        } else {
+          // Mock general recommendations
+          setRecommendations(generateMockRecommendations());
+        }
+      } catch (error) {
+        console.error('Error fetching recommendations:', error);
+      }
+    };
+
     const fetchInitialData = async () => {
       setLoading(true);
       try {
@@ -118,86 +195,7 @@ const AIInsightsPanel = ({ supplierId = null }) => {
     };
 
     fetchInitialData();
-  }, [supplierId]);
-
-  const fetchAIInsights = async () => {
-    try {
-      // Generate mock insights for now
-      const mockInsights = generateMockInsights();
-      setInsights(mockInsights);
-    } catch (error) {
-      console.error('Error fetching AI insights:', error);
-    }
-  };
-
-  const fetchRealTimeRisk = async () => {
-    try {
-      if (supplierId) {
-        const response = await fetch(
-          `http://localhost:8080/api/analytics/real-time-risk/${supplierId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          }
-        );
-        
-        if (response.ok) {
-          const riskData = await response.json();
-          setRealTimeRisk(riskData);
-        }
-      } else {
-        // Mock aggregate risk data
-        setRealTimeRisk({
-          newRiskScore: 45 + Math.random() * 30,
-          confidence: 85 + Math.random() * 10,
-          trend: 'stable',
-          riskFactors: {
-            financial: 35,
-            operational: 50,
-            geographic: 40,
-            compliance: 30
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching real-time risk:', error);
-    }
-  };
-
-  const fetchRecommendations = async () => {
-    try {
-      if (supplierId) {
-        const response = await fetch(
-          'http://localhost:8080/api/analytics/recommendations/suppliers',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-              currentSupplierId: supplierId,
-              criteria: {
-                maxRecommendations: 5,
-                businessPriority: 'RISK_MINIMIZATION'
-              }
-            })
-          }
-        );
-        
-        if (response.ok) {
-          const recommendations = await response.json();
-          setRecommendations(recommendations);
-        }
-      } else {
-        // Mock general recommendations
-        setRecommendations(generateMockRecommendations());
-      }
-    } catch (error) {
-      console.error('Error fetching recommendations:', error);
-    }
-  };
+  }, [supplierId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const generateMockInsights = () => {
     const insightTypes = [
