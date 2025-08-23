@@ -10,7 +10,7 @@ import {
   IconButton,
   Chip,
 } from '@mui/material';
-import { AccountCircle, ExitToApp } from '@mui/icons-material';
+import { AccountCircle, ExitToApp, ExpandMore } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [analyticsMenuEl, setAnalyticsMenuEl] = React.useState(null);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -25,6 +26,14 @@ const Header = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleAnalyticsMenuOpen = (event) => {
+    setAnalyticsMenuEl(event.currentTarget);
+  };
+
+  const handleAnalyticsMenuClose = () => {
+    setAnalyticsMenuEl(null);
   };
 
   const handleProfile = () => {
@@ -73,11 +82,36 @@ const Header = () => {
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
               <Button 
                 color="inherit" 
-                onClick={() => navigate('/')}
+                onClick={handleAnalyticsMenuOpen}
+                endIcon={<ExpandMore />}
                 sx={{ textTransform: 'none' }}
               >
-                Dashboard
+                Analytics
               </Button>
+              <Menu
+                anchorEl={analyticsMenuEl}
+                open={Boolean(analyticsMenuEl)}
+                onClose={handleAnalyticsMenuClose}
+                MenuListProps={{
+                  'aria-labelledby': 'analytics-button',
+                }}
+              >
+                <MenuItem onClick={() => { handleAnalyticsMenuClose(); navigate('/dashboard/executive'); }}>
+                  Executive Dashboard
+                </MenuItem>
+                <MenuItem onClick={() => { handleAnalyticsMenuClose(); navigate('/dashboard/analytics'); }}>
+                  Basic Analytics
+                </MenuItem>
+                <MenuItem onClick={() => { handleAnalyticsMenuClose(); navigate('/dashboard/advanced'); }}>
+                  Advanced Analytics
+                </MenuItem>
+                <MenuItem onClick={() => { handleAnalyticsMenuClose(); navigate('/dashboard/predictive'); }}>
+                  Predictive Analytics
+                </MenuItem>
+                <MenuItem onClick={() => { handleAnalyticsMenuClose(); navigate('/dashboard/ai-insights'); }}>
+                  AI Insights
+                </MenuItem>
+              </Menu>
               <Button 
                 color="inherit" 
                 onClick={() => navigate('/suppliers')}

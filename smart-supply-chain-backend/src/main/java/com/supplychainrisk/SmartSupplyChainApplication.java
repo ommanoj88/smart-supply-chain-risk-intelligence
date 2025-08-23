@@ -7,7 +7,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
+
 @EnableConfigurationProperties
+
 public class SmartSupplyChainApplication {
 
     public static void main(String[] args) {
