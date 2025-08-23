@@ -369,11 +369,11 @@ public class AdvancedAnalyticsService {
             }
             
             // Delivery performance factor
-            if (supplier.getOnTimeDeliveryRate() < 85.0) {
+            if (supplier.getOnTimeDeliveryRate().compareTo(BigDecimal.valueOf(85.0)) < 0) {
                 riskFactors.add(new RealTimeRiskAssessment.RiskFactor(
                     "Delivery Performance",
                     "DELIVERY",
-                    BigDecimal.valueOf(100 - supplier.getOnTimeDeliveryRate()),
+                    BigDecimal.valueOf(100).subtract(supplier.getOnTimeDeliveryRate()),
                     BigDecimal.valueOf(90.0)
                 ));
             }
@@ -510,8 +510,9 @@ public class AdvancedAnalyticsService {
     // Simplified calculation methods for demonstration
     private BigDecimal calculateDelayProbability(Supplier supplier) {
         // Calculate based on supplier's on-time delivery rate
-        double onTimeRate = supplier.getOnTimeDeliveryRate();
-        double delayProbability = Math.max(0, Math.min(100, (100 - onTimeRate) * 1.2));
+        BigDecimal onTimeRate = supplier.getOnTimeDeliveryRate();
+        double onTimeRateDouble = onTimeRate.doubleValue();
+        double delayProbability = Math.max(0, Math.min(100, (100 - onTimeRateDouble) * 1.2));
         return BigDecimal.valueOf(delayProbability);
     }
     
